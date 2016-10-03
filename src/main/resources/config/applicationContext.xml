@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<mvc:resources mapping="/scripts/*" location="/WEB-INF/scripts/" />
+	<mvc:resources mapping="/styles/*" location="/WEB-INF/styles/" />
+	<mvc:resources mapping="/styles/images/*" location="/WEB-INF/styles/images/" />
+	<mvc:resources mapping="/styles/metro/*" location="/WEB-INF/styles/metro/" />
+	<mvc:resources mapping="/styles/metro/crimson/*" location="/WEB-INF/styles/metro/crimson/" />
+	
+	<mvc:annotation-driven />
+	<context:component-scan base-package="com.happiestminds.projectallocationsystem" />
+
+	<!-- <jee:jndi-lookup id="dataSource" jndi-name="jdbc/hibernate"></jee:jndi-lookup> -->
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"> 
+		<!-- <property name="dataSource" ref="dataSource" />  -->
+		<property name="configLocation"	value="classpath:config/hibernate.cfg.xml" /> 
+	</bean>
+	
+	<!-- <context:property-placeholder location="classpath:/config/mail_smtp.properties" /> -->
+	
+	 <bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/config/mail_smtp.properties</value>
+				<value>classpath:/config/initDB/init_data.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+<!-- 	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean> -->
+	
+	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" 
+		id="viewResolver"> 
+		<property name="viewClass"> 
+			<value> org.springframework.web.servlet.view.tiles2.TilesView</value> </property> 
+	</bean> 
+	
+	<bean class="org.springframework.web.servlet.view.tiles2.TilesConfigurer" 
+		id="tilesConfigurer"> 
+		<property name="definitions"> 
+			<list> <value>classpath:/config/tiles.xml</value> 
+			</list> 
+		</property> 
+	</bean>
+
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${mail.smtp.host}"></property>
+		<property name="port" value="${mail.smtp.tls.port}"></property>
+		<property name="username" value="${mail.smtp.username}"></property>
+		<property name="password" value="${mail.smtp.password}"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<tx:annotation-driven />
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<!-- <property name="dataSource" ref="dataSource" /> -->
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	
+	<!-- <bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>com.happiestminds.projectallocationsystem.entity</value>
+			</list>
+		</property>
+
+		<property name="configurationClass">
+			<value>org.hibernate.cfg.AnnotationConfiguration</value>
+		</property>
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.query.factory_class">${hibernate.query.factory_class}</prop>
+
+				Enable Hibernate's automatic session context management
+				<prop key="current_session_context_class">${hibernate.current_session_context_class}</prop>
+
+				Disable the second-level cache
+				<prop key="cache.provider_class">${hibernate.cache.provider_class}</prop>
+			</props>
+		</property>
+	</bean>
+ -->
+	<!-- <bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/config/mail_smtp.properties</value>
+				<value>classpath:/config/hibernate.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean> -->
+		
+</beans>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<definition name="layoutWithNORight" template="/WEB-INF/view/layout.jsp">
+		<put-attribute name="title" value=""></put-attribute>
+		<put-attribute name="header" value="/WEB-INF/view/header.jsp"></put-attribute>
+		<put-attribute name="menu" value="/WEB-INF/view/menu.jsp"></put-attribute>
+		<put-attribute name="body" value=""></put-attribute>
+		<put-attribute name="footer" value="/WEB-INF/view/footer.jsp"></put-attribute>
+	</definition>
+
+	<definition name="layoutWithNOLeftRight" template="/WEB-INF/view/layout.jsp">
+		<put-attribute name="title" value=""></put-attribute>
+		<put-attribute name="header" value="/WEB-INF/view/header.jsp"></put-attribute>
+		<put-attribute name="menu" value=""></put-attribute>
+		<put-attribute name="body" value=""></put-attribute>
+		<put-attribute name="footer" value="/WEB-INF/view/footer.jsp"></put-attribute>
+	</definition>
+
+	<definition name="noLayout" template="/WEB-INF/view/layout.jsp">
+		<put-attribute name="title" value=""></put-attribute>
+		<put-attribute name="header" value=""></put-attribute>
+		<put-attribute name="menu" value=""></put-attribute>
+		<put-attribute name="body" value=""></put-attribute>
+		<put-attribute name="footer" value=""></put-attribute>
+	</definition>
+
+	<definition name="login" extends="noLayout">
+		<put-attribute name="title"
+			value="Login Into Project Allocation System"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/login.jsp"></put-attribute>
+	</definition>
+
+	<definition name="home" extends="layoutWithNORight">
+		<put-attribute name="title"
+			value="Welcome In Project Allocation System"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/home.jsp"></put-attribute>
+	</definition>
+
+	<definition name="userGroupMang" extends="layoutWithNORight">
+		<put-attribute name="title" value="User Group Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/usergroup.jsp"></put-attribute>
+	</definition>
+
+	<definition name="grouprights" extends="noLayout">
+		<put-attribute name="body" value="/WEB-INF/view/grouprights.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="userMang" extends="layoutWithNORight">
+		<put-attribute name="title" value="User Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/users.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="employeeMang" extends="layoutWithNORight">
+		<put-attribute name="title" value="Employee Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/employees.jsp"></put-attribute>
+	</definition>
+
+	<definition name="skillsetmang" extends="layoutWithNORight">
+		<put-attribute name="title" value="SkillSet Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/skillset.jsp"></put-attribute>
+	</definition>
+
+	<definition name="customersMang" extends="layoutWithNORight">
+		<put-attribute name="title" value="Customer Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/customers.jsp"></put-attribute>
+	</definition>
+
+	<definition name="projectsMang" extends="layoutWithNORight">
+		<put-attribute name="title" value="Project Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/projects.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="changpwd" extends="layoutWithNORight">
+		<put-attribute name="title" value="Change Password"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/changpwd.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="register" extends="noLayout">
+		<put-attribute name="title" value="Register User"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/register.jsp"></put-attribute>
+	</definition>
+	
+	<definition name="allocateRequestMangement" extends="layoutWithNOLeftRight">
+		<put-attribute name="title" value="Allocation Request Management"></put-attribute>
+		<put-attribute name="body" value="/WEB-INF/view/allocam.jsp"></put-attribute>
+	</definition>
+	
+</tiles-definitions>

@@ -1,0 +1,10 @@
+USRGRPM,User Groups Management,1
+USRACCM,User Accounts Management,2
+SKILLM,Skill Management,3
+CUSTM,Customer Management,4
+PRJCTM,Project Management,5
+APPCONF,Application Configuration,6
+ALLOCAM,Allocation management,7
+REPORTS,Report Generation,8
+AUDIT,View/Export Audit Trail,9
+EMPM,Employee Management,10

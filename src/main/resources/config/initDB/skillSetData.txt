@@ -1,0 +1,5 @@
+JAVA,Java/web,Technical
+MICROSOFT,Microsoft,Technical
+MOBILITY,Mobility,Technical
+TESTING,Testing,Technical
+TEMP,temp,temp
