@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "module")
-public class ModuleEntity {
+public class ModuleEntity{
 
 	@Id
 	@Column(length = 10)
@@ -22,6 +22,7 @@ public class ModuleEntity {
 	private String moduleName;
 	@Column(length = 3)
 	private Integer viewOrder;
+
 
 	public ModuleEntity() {
 		super();

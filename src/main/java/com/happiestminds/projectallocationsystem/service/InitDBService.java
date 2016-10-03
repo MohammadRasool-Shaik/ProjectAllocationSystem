@@ -6,5 +6,5 @@ package com.happiestminds.projectallocationsystem.service;
  * 
  */
 public interface InitDBService {
-	public void loadInitialData();
+	public void initTables();
 }

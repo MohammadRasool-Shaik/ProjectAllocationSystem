@@ -9,7 +9,7 @@ import javax.persistence.Embeddable;
  * 
  */
 @Embeddable
-public class EmailEntity{
+public class EmailEntity {
 
 	private String subject;
 
@@ -21,6 +21,7 @@ public class EmailEntity{
 	 * 
 	 */
 	public EmailEntity() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getSubject() {

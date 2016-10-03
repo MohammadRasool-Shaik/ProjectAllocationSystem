@@ -57,6 +57,7 @@ public class AllocationRequestsEntity {
 	public AllocationRequestsEntity() {
 	}
 
+
 	/**
 	 * @return the requestID
 	 */
@@ -64,13 +65,14 @@ public class AllocationRequestsEntity {
 		return requestID;
 	}
 
+
 	/**
-	 * @param requestID
-	 *            the requestID to set
+	 * @param requestID the requestID to set
 	 */
 	public void setRequestID(int requestID) {
 		this.requestID = requestID;
 	}
+
 
 	/**
 	 * @return the requestDate

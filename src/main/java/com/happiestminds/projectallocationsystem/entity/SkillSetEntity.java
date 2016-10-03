@@ -10,18 +10,15 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "skillset")
-public class SkillSetEntity {
+@Table(name="skillset")
+public class SkillSetEntity{
 
 	@Id
-	@Column(length = 20, nullable = false)
+	@Column(length = 20)
 	private String skillID;
 
-	@Column(length = 50, nullable = false)
-	private String description;
-
 	@Column(length = 50)
-	private String groupInfo;
+	private String description;
 
 	/**
 	 * 
@@ -69,18 +66,4 @@ public class SkillSetEntity {
 		this.description = description;
 	}
 
-	/**
-	 * @return the groupInfo
-	 */
-	public String getGroupInfo() {
-		return groupInfo;
-	}
-
-	/**
-	 * @param groupInfo
-	 *            the groupInfo to set
-	 */
-	public void setGroupInfo(String groupInfo) {
-		this.groupInfo = groupInfo;
-	}
 }

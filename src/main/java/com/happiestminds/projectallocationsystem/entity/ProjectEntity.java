@@ -16,12 +16,12 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "Projects")
-public class ProjectEntity {
+public class ProjectEntity{
 	@Id
 	@Column(length = 10)
 	private String projectID;
 
-	@Column(length = 50, nullable = false)
+	@Column(length = 50)
 	private String projectName;
 
 	@Column(length = 100)
@@ -32,7 +32,7 @@ public class ProjectEntity {
 
 	private Date startDate;
 
-	private Date expectedEndDate;
+	private Date endDate;
 
 	@ManyToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "customerId", nullable = false)
@@ -131,6 +131,21 @@ public class ProjectEntity {
 	}
 
 	/**
+	 * @return the endDate
+	 */
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	/**
+	 * @param endDate
+	 *            the endDate to set
+	 */
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	/**
 	 * @return the customer
 	 */
 	public CustomerEntity getCustomer() {
@@ -143,21 +158,6 @@ public class ProjectEntity {
 	 */
 	public void setCustomer(CustomerEntity customer) {
 		this.customer = customer;
-	}
-
-	/**
-	 * @return the expectedEndDate
-	 */
-	public Date getExpectedEndDate() {
-		return expectedEndDate;
-	}
-
-	/**
-	 * @param expectedEndDate
-	 *            the expectedEndDate to set
-	 */
-	public void setExpectedEndDate(Date expectedEndDate) {
-		this.expectedEndDate = expectedEndDate;
 	}
 
 }

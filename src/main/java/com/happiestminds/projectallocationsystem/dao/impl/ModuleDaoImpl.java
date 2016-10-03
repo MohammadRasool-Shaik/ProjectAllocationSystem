@@ -1,14 +1,12 @@
 package com.happiestminds.projectallocationsystem.dao.impl;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.criterion.Projections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.happiestminds.projectallocationsystem.dao.ModuleDao;
 import com.happiestminds.projectallocationsystem.entity.ModuleEntity;
@@ -20,6 +18,8 @@ import com.happiestminds.projectallocationsystem.entity.ModuleEntity;
 @Repository
 public class ModuleDaoImpl extends AbstractDaoImpl<ModuleEntity, String> implements ModuleDao {
 
+	private static Logger logger = LoggerFactory.getLogger(ModuleDaoImpl.class.getSimpleName());
+
 	@Autowired
 	private SessionFactory sessionFactory;
 
@@ -27,13 +27,19 @@ public class ModuleDaoImpl extends AbstractDaoImpl<ModuleEntity, String> impleme
 		super(ModuleEntity.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> fetchAllModuleIds() throws HibernateException {
-		Session session = sessionFactory.getCurrentSession();
-		Criteria criteria = session.createCriteria(ModuleEntity.class);
-		criteria.setProjection(Projections.property("moduleId"));
-		return criteria.list();
+	@Transactional
+	public void saveInitialData(ModuleEntity module)throws HibernateException {
+		try {
+			
+			
+			
+			
+		} catch (HibernateException hex) {
+			logger.error(hex.getClass() + "EXCEPTION OCCURED WHILE READING DATA FROM INITDB TEXT FILES IN" + hex.getStackTrace());
+			throw hex;
+		}
+
 	}
 
 }

@@ -9,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * @author rasool.shaik
@@ -18,24 +17,21 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "user")
-public class UserEntity {
+public class UserEntity{
 
 	@Id
 	@Column(length = 10, updatable = false)
 	private String userId;
-	@Column(length = 50, nullable = false, unique = true, updatable = false)
+	@Column(length = 50, nullable = false)
 	private String userName;
 
 	@Column(length = 100, nullable = false)
 	private String password;
 
-	@Transient
-	private String cpassword;
+	@Column(length = 100, nullable = false)
+	private String email;
 
-	@Column(length = 100, nullable = false, unique = true)
-	private String emailId;
-
-	@Column(length = 50)
+	@Column(length = 50, nullable = false)
 	private String lastLoginIP;
 
 	private Date lastLoginDate;
@@ -43,12 +39,12 @@ public class UserEntity {
 	private int failedAttempts;
 
 	@Column(length = 1, nullable = false)
-	private Integer accountStatus = 0;
+	private String accountStatus;
 
 	private Date resetValidity;
 
 	@Column(length = 1, nullable = false)
-	private Integer currentlyBilled = 0;
+	private String currentlyBilled;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "groupId", nullable = false)
@@ -68,7 +64,7 @@ public class UserEntity {
 		this.userId = userId;
 		this.userName = userName;
 		this.password = password;
-		this.emailId = email;
+		this.email = email;
 	}
 
 	/**
@@ -119,16 +115,16 @@ public class UserEntity {
 	/**
 	 * @return the email
 	 */
-	public String getEmailId() {
-		return emailId;
+	public String getEmail() {
+		return email;
 	}
 
 	/**
-	 * @param emailId
+	 * @param email
 	 *            the email to set
 	 */
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	/**
@@ -177,6 +173,21 @@ public class UserEntity {
 	}
 
 	/**
+	 * @return the accountStatus
+	 */
+	public String getAccountStatus() {
+		return accountStatus;
+	}
+
+	/**
+	 * @param accountStatus
+	 *            the accountStatus to set
+	 */
+	public void setAccountStatus(String accountStatus) {
+		this.accountStatus = accountStatus;
+	}
+
+	/**
 	 * @return the resetValidity
 	 */
 	public Date getResetValidity() {
@@ -192,6 +203,21 @@ public class UserEntity {
 	}
 
 	/**
+	 * @return the currentlyBilled
+	 */
+	public String getCurrentlyBilled() {
+		return currentlyBilled;
+	}
+
+	/**
+	 * @param currentlyBilled
+	 *            the currentlyBilled to set
+	 */
+	public void setCurrentlyBilled(String currentlyBilled) {
+		this.currentlyBilled = currentlyBilled;
+	}
+
+	/**
 	 * @return the userGroup
 	 */
 	public UserGroupEntity getUserGroup() {
@@ -204,56 +230,5 @@ public class UserEntity {
 	 */
 	public void setUserGroup(UserGroupEntity userGroup) {
 		this.userGroup = userGroup;
-	}
-
-	/**
-	 * @return the accountStatus
-	 */
-	public Integer getAccountStatus() {
-		return accountStatus;
-	}
-
-	/**
-	 * @param accountStatus
-	 *            the accountStatus to set
-	 */
-	public void setAccountStatus(Integer accountStatus) {
-
-		if (accountStatus != null) {
-			this.accountStatus = accountStatus;
-		}
-	}
-
-	/**
-	 * @return the currentlyBilled
-	 */
-	public Integer getCurrentlyBilled() {
-		return currentlyBilled;
-	}
-
-	/**
-	 * @param currentlyBilled
-	 *            the currentlyBilled to set
-	 */
-	public void setCurrentlyBilled(Integer currentlyBilled) {
-		if (currentlyBilled != null) {
-			this.currentlyBilled = currentlyBilled;
-		}
-
-	}
-
-	/**
-	 * @return the cpassword
-	 */
-	public String getCpassword() {
-		return cpassword;
-	}
-
-	/**
-	 * @param cpassword
-	 *            the cpassword to set
-	 */
-	public void setCpassword(String cpassword) {
-		this.cpassword = cpassword;
 	}
 }

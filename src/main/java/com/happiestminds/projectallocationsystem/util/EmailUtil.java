@@ -22,6 +22,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 /**
  * @author rasool.shaik
@@ -31,6 +33,8 @@ import org.slf4j.LoggerFactory;
 public class EmailUtil {
 
 	private static Logger logger = LoggerFactory.getLogger(EmailUtil.class);
+	@Autowired
+	private Environment env;
 
 	/**
 	 * Utility method to send simple HTML email
@@ -64,17 +68,15 @@ public class EmailUtil {
 
 			logger.info("EMail Sent Successfully!!");
 		} catch (Exception e) {
-			logger.error("EXCEPTION OCCURED WHILE PROCESSING THE REQUEST");
+			e.printStackTrace();
 		}
 	}
 
 	public void sendSSLEmail() {
-		final String fromEmail = "skrasoolmca@gmail.com"; // requires valid
-															// gmail
-															// id
-		final String password = "testtest"; // correct password for gmail id
-		final String toEmail = "rasool.shaik@happiestminds.com"; // can be any
-																	// email id
+		final String fromEmail = "skrasoolmca@gmail.com"; // requires valid gmail
+														// id
+		final String password = "Rasool8@ammu"; // correct password for gmail id
+		final String toEmail = "rasool.shaik@happiestminds.com"; // can be any email id
 
 		logger.info("SSLEmail Start");
 		Properties props = new Properties();
@@ -155,9 +157,9 @@ public class EmailUtil {
 			Transport.send(msg);
 			logger.info("EMail Sent Successfully with attachment!!");
 		} catch (MessagingException e) {
-			logger.error("EXCEPTION OCCURED WHILE MAILING/MESSAGEING REQUEST");
+			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			logger.error("UnsupportedEncoding OCCURED WHILE MAILING/MESSAGEING REQUEST");
+			e.printStackTrace();
 		}
 	}
 
@@ -219,9 +221,9 @@ public class EmailUtil {
 			Transport.send(msg);
 			logger.info("EMail Sent Successfully with image!!");
 		} catch (MessagingException e) {
-			logger.error("EXCEPTION OCCURED WHILE MAILING/MESSAGEING REQUEST");
+			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			logger.error("UnsupportedEncoding OCCURED WHILE MAILING/MESSAGEING REQUEST");
+			e.printStackTrace();
 		}
 	}
 }

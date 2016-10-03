@@ -1,12 +1,8 @@
 package com.happiestminds.projectallocationsystem.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -15,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "user_groups")
-public class UserGroupEntity {
+public class UserGroupEntity{
 
 	@Id
 	@Column(length = 10)
@@ -23,10 +19,7 @@ public class UserGroupEntity {
 
 	@Column(length = 50)
 	private String groupName;
-
-	@OneToMany(mappedBy = "userGroup")
-	private List<UserEntity> users=new ArrayList<UserEntity>();
-
+	
 	/**
 	 * 
 	 */
@@ -72,20 +65,6 @@ public class UserGroupEntity {
 	 */
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
-	}
-
-	/**
-	 * @return the users
-	 */
-	public List<UserEntity> getUsers() {
-		return users;
-	}
-
-	/**
-	 * @param users the users to set
-	 */
-	public void setUsers(List<UserEntity> users) {
-		this.users = users;
 	}
 
 }

@@ -32,9 +32,6 @@
 		<mapping
 			class="com.happiestminds.projectallocationsystem.entity.UserGroupEntity" />
 		<mapping
-			class="com.happiestminds.projectallocationsystem.entity.GroupRightsEntity" />
-
-		<mapping
 			class="com.happiestminds.projectallocationsystem.entity.SkillSetEntity" />
 		<mapping
 			class="com.happiestminds.projectallocationsystem.entity.CustomerEntity" />
@@ -44,8 +41,5 @@
 			class="com.happiestminds.projectallocationsystem.entity.AllocationRequestsEntity" />
 		<mapping
 			class="com.happiestminds.projectallocationsystem.entity.AllocationHistoryEntity" />
-		<mapping
-			class="com.happiestminds.projectallocationsystem.entity.SubSkillSetEntity" />
-			
 	</session-factory>
 </hibernate-configuration>

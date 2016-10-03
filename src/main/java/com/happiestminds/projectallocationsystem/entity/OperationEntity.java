@@ -3,15 +3,19 @@
  */
 package com.happiestminds.projectallocationsystem.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * @author rasool.shaik
@@ -19,7 +23,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "operations")
-public class OperationEntity{
+public class OperationEntity {
 
 	@Id
 	@Column(length = 10)
@@ -29,12 +33,13 @@ public class OperationEntity{
 	@Column(length = 3)
 	private Integer viewOrder;
 
-	@ManyToOne(cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY)
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "moduleId", nullable = false)
 	private ModuleEntity module;
-	
-	@Transient
-	private String isChecked;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "group_rights", joinColumns = @JoinColumn(name = "operationId"), inverseJoinColumns = @JoinColumn(name = "groupId"))
+	private Set<UserGroupEntity> userGroups = new HashSet<UserGroupEntity>();
 
 	/**
 	 * 
@@ -43,11 +48,12 @@ public class OperationEntity{
 		super();
 	}
 
-	public OperationEntity(String operationId, String description, Integer viewOrder) {
+	public OperationEntity(String operationId, String description, Integer viewOrder, ModuleEntity module) {
 		super();
 		this.operationId = operationId;
 		this.description = description;
 		this.viewOrder = viewOrder;
+		this.module = module;
 	}
 
 	/**
@@ -80,14 +86,6 @@ public class OperationEntity{
 		this.description = description;
 	}
 
-	public Integer getViewOrder() {
-		return viewOrder;
-	}
-
-	public void setViewOrder(Integer viewOrder) {
-		this.viewOrder = viewOrder;
-	}
-
 	/**
 	 * @return the module
 	 */
@@ -104,18 +102,26 @@ public class OperationEntity{
 	}
 
 	/**
-	 * @return the isChecked
+	 * @return the userGroups
 	 */
-	public String getIsChecked() {
-		return isChecked;
+	public Set<UserGroupEntity> getUserGroups() {
+		return userGroups;
 	}
 
 	/**
-	 * @param isChecked the isChecked to set
+	 * @param userGroups
+	 *            the userGroups to set
 	 */
-	public void setIsChecked(String isChecked) {
-		this.isChecked = isChecked;
+	public void setUserGroups(Set<UserGroupEntity> userGroups) {
+		this.userGroups = userGroups;
 	}
 
+	public Integer getViewOrder() {
+		return viewOrder;
+	}
+
+	public void setViewOrder(Integer viewOrder) {
+		this.viewOrder = viewOrder;
+	}
 
 }

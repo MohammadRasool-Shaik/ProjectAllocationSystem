@@ -1,7 +1,7 @@
 package com.happiestminds.projectallocationsystem.dao.impl;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -30,101 +30,61 @@ public abstract class AbstractDaoImpl<E extends Object, Id extends Serializable>
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.rash.sampleapp.dao.AbstractDAO#saveOrUpdate(java.lang.Object)
+	 */
 	@Override
-	public E save(E entity) {
+	public E saveOrUpdate(E entity)throws HibernateException {
+
 		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.clear();
-		currentSession.save(entity);
-		currentSession.flush();
+		currentSession.saveOrUpdate(entity);
 		return entity;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.happiestminds.projectallocationsystem.dao.AbstractDAO#update(java
-	 * .lang.Object)
+	 * @see org.rash.sampleapp.dao.AbstractDAO#findById(java.io.Serializable)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public E findById(Id id)throws HibernateException {
+		Session currentSession = sessionFactory.getCurrentSession();
+		E entity = (E) currentSession.get(entityClass, id);
+		return entity;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.rash.sampleapp.dao.AbstractDAO#delete(java.lang.Object)
 	 */
 	@Override
-	public E update(E entity) throws HibernateException {
-		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.clear();
-		currentSession.update(entity);
-		currentSession.flush();
-		return entity;
-
-	}
-
-	@Override
-	public E saveOrUpdate(E entity) {
-		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.clear();
-		currentSession.saveOrUpdate(entity);
-		currentSession.flush();
-		return entity;
-	}
-
-	@Override
-	public E saveOrMerge(E entity) {
-		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.clear();
-		currentSession.merge(entity);
-		currentSession.flush();
-		return entity;
-	}
-
-	@Override
-	public void delete(E entity) {
+	public void delete(E entity)throws HibernateException {
 		Session currentSession = sessionFactory.getCurrentSession();
 		currentSession.delete(entity);
 	}
 
-	@Override
-	public void deleteById(String entity, Id id) {
-		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("delete FROM " + entity + " WHERE id=:id");
-		query.setParameter("id", id);
-		query.executeUpdate();
-
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.rash.sampleapp.dao.AbstractDAO#findAll()
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public E findById(Id id) {
-		Session currentSession = sessionFactory.getCurrentSession();
-		return (E) currentSession.get(entityClass, id);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Collection<E> findAll() {
-		Session session = sessionFactory.getCurrentSession();
-		Criteria criteria = session.createCriteria(entityClass);
-		return criteria.list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Collection<E> findByCriteria(Criterion criterion) {
+	public List<E> findByCriteria(Criterion criterion)throws HibernateException {
 		Session session = sessionFactory.getCurrentSession();
 		Criteria criteria = session.createCriteria(entityClass);
 		criteria.add(criterion);
 		return criteria.list();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Collection<E> findAll(String entityName) {
-		Session currentSession = sessionFactory.getCurrentSession();
-		Query query = currentSession.createQuery("FROM " + entityName);
-		return query.list();
-	}
-
 	/**
 	 * @return the sessionFactory
 	 */
-	public SessionFactory getSessionFactory() throws HibernateException {
+	public SessionFactory getSessionFactory()throws HibernateException {
 		return sessionFactory;
 	}
 
@@ -134,6 +94,21 @@ public abstract class AbstractDaoImpl<E extends Object, Id extends Serializable>
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.rash.sampleapp.dao.AbstractDAO#findAll(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<E> findAll(String entityName)throws HibernateException {
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		Query query = currentSession.createQuery("FROM "+entityName  );
+		List<E> list = query.list();
+		return list;
 	}
 
 	/*
