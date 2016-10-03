@@ -2,17 +2,14 @@ package com.happiestminds.projectallocationsystem.entity;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import com.happiestminds.projectallocationsystem.enumerator.UserStatus;
+import javax.persistence.Transient;
 
 /**
  * @author rasool.shaik
@@ -26,12 +23,14 @@ public class UserEntity {
 	@Id
 	@Column(length = 10, updatable = false)
 	private String userId;
-
 	@Column(length = 50, nullable = false, unique = true, updatable = false)
 	private String userName;
 
 	@Column(length = 100, nullable = false)
 	private String password;
+
+	@Transient
+	private String cpassword;
 
 	@Column(length = 100, nullable = false, unique = true)
 	private String emailId;
@@ -41,14 +40,17 @@ public class UserEntity {
 
 	private Date lastLoginDate;
 
-	private Integer failedAttempts;
+	private int failedAttempts;
 
-	@Enumerated
-	private UserStatus accountStatus;
+	@Column(length = 1, nullable = false)
+	private Integer accountStatus = 0;
 
 	private Date resetValidity;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+	@Column(length = 1, nullable = false)
+	private Integer currentlyBilled = 0;
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "groupId", nullable = false)
 	private UserGroupEntity userGroup;
 
@@ -69,6 +71,20 @@ public class UserEntity {
 		this.emailId = email;
 	}
 
+	/**
+	 * @return the userId
+	 */
+	public String getUserId() {
+		return userId;
+	}
+
+	/**
+	 * @param userId
+	 *            the userId to set
+	 */
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
 	/**
 	 * @return the userName
@@ -148,7 +164,7 @@ public class UserEntity {
 	/**
 	 * @return the failedAttempts
 	 */
-	public Integer getFailedAttempts() {
+	public int getFailedAttempts() {
 		return failedAttempts;
 	}
 
@@ -156,10 +172,8 @@ public class UserEntity {
 	 * @param failedAttempts
 	 *            the failedAttempts to set
 	 */
-	public void setFailedAttempts(Integer failedAttempts) {
-		if (failedAttempts != null) {
-			this.failedAttempts = failedAttempts;
-		}
+	public void setFailedAttempts(int failedAttempts) {
+		this.failedAttempts = failedAttempts;
 	}
 
 	/**
@@ -192,27 +206,54 @@ public class UserEntity {
 		this.userGroup = userGroup;
 	}
 
-	public UserStatus getAccountStatus() {
+	/**
+	 * @return the accountStatus
+	 */
+	public Integer getAccountStatus() {
 		return accountStatus;
 	}
 
-	public void setAccountStatus(UserStatus accountStatus) {
-		this.accountStatus = accountStatus;
+	/**
+	 * @param accountStatus
+	 *            the accountStatus to set
+	 */
+	public void setAccountStatus(Integer accountStatus) {
+
+		if (accountStatus != null) {
+			this.accountStatus = accountStatus;
+		}
 	}
 
 	/**
-	 * @return the userId
+	 * @return the currentlyBilled
 	 */
-	public String getUserId() {
-		return userId;
+	public Integer getCurrentlyBilled() {
+		return currentlyBilled;
 	}
 
 	/**
-	 * @param userId the userId to set
+	 * @param currentlyBilled
+	 *            the currentlyBilled to set
 	 */
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setCurrentlyBilled(Integer currentlyBilled) {
+		if (currentlyBilled != null) {
+			this.currentlyBilled = currentlyBilled;
+		}
+
 	}
 
+	/**
+	 * @return the cpassword
+	 */
+	public String getCpassword() {
+		return cpassword;
+	}
 
+	/**
+	 * @param cpassword
+	 *            the cpassword to set
+	 */
+	public void setCpassword(String cpassword) {
+		this.cpassword = cpassword;
+	}
 }

@@ -1,4 +1,4 @@
 CLEVERCRICKET,Clever Cricket PVT LTD
 ESPN,Espn CricInfo
 PENTLAND,Pentland
-GUDURIS,Guduris Pvt ltd
+INDCEL,Guduris

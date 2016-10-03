@@ -1,4 +1,2 @@
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<div class="footer">Footer !
-	<%@ include file="/WEB-INF/view/jsincludes.jsp"%>
-</div>
+<script type="text/javascript" src="<c:url value="/scripts/jquery-1.11.1.min.js" />"></script>
+<script type="text/javascript" src="<c:url value="/scripts/jquery-ui-1.10.4.custom.js" />"></script>

@@ -1,32 +1,25 @@
 package com.happiestminds.projectallocationsystem.service;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
-import com.happiestminds.projectallocationsystem.Dto.CustomerDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.CustomerListDto;
-import com.happiestminds.projectallocationsystem.response.CustomerOptionsResponse;
+import com.happiestminds.projectallocationsystem.entity.CustomerEntity;
 
 /**
  * @author rasool.shaik
- * 
+ *
  */
 public interface CustomerService {
-	@Transactional(readOnly = false)
-	void addCustomer(CustomerDto customer);
+	@Transactional(readOnly=false)
+	boolean addCustomer(CustomerEntity customer);
 
-	@Transactional(readOnly = false)
-	void updateCustomer(CustomerDto customer);
+	@Transactional(readOnly=false)
+	boolean updateCustomer(CustomerEntity customer);
 
 	@Transactional
-	void deleteCustomer(CustomerDto customer);
+	boolean deleteCustomer(CustomerEntity customer);
 
-	@Transactional(readOnly = true)
-	CustomerListDto fetchCustomers(int startIndex, int pageSize, String sortVar);
-
-	@Transactional(readOnly = true)
-	int getCountAllCustomers();
-
-	@Transactional(readOnly = true)
-	CustomerOptionsResponse getAllCustomers();
-
+	@Transactional(readOnly=true)
+	List<CustomerEntity> fetchCustomers();
 }

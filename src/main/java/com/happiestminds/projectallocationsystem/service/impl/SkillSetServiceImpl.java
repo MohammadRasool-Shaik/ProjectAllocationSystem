@@ -1,24 +1,22 @@
 package com.happiestminds.projectallocationsystem.service.impl;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
-import org.springframework.beans.BeanUtils;
+import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.happiestminds.projectallocationsystem.Dto.SkillSetDto;
-import com.happiestminds.projectallocationsystem.Dto.SkillSetOptionDto;
-import com.happiestminds.projectallocationsystem.Dto.StatusDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.SkillSetListDto;
 import com.happiestminds.projectallocationsystem.dao.SkillSetDAO;
 import com.happiestminds.projectallocationsystem.entity.SkillSetEntity;
-import com.happiestminds.projectallocationsystem.enumerator.StatusCodeEnum;
-import com.happiestminds.projectallocationsystem.response.SkillSetOptionsResponse;
 import com.happiestminds.projectallocationsystem.service.SkillSetService;
 
 @Service
-public class SkillSetServiceImpl extends AbstractServiceImpl implements SkillSetService {
+public class SkillSetServiceImpl implements SkillSetService {
+
+	private static Logger logger = LoggerFactory.getLogger(SkillSetServiceImpl.class.getSimpleName());
 
 	@Autowired
 	private SkillSetDAO skillSetDAO;
@@ -27,97 +25,70 @@ public class SkillSetServiceImpl extends AbstractServiceImpl implements SkillSet
 	}
 
 	@Override
-	public void addSkillSet(SkillSetDto skillSetDto) {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		SkillSetEntity skillSet = skillSetDAO.findById(skillSetDto.getSkillID());
-		if (skillSet == null) {
-			skillSetDto.setSkillID(skillSetDto.getSkillID().toUpperCase());
-			skillSet = new SkillSetEntity();
-			BeanUtils.copyProperties(skillSetDto, skillSet);
-			skillSetDAO.save(skillSet);
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Skill Added Successfully");
-		} else {
-			statusDto.setStatusMessage("Skill with same ID Already Exit, Try Another?");
-			// throwAlredyExistValidationError(SkillSetDto.class.getSimpleName(),
-			// skillSetDto.getSkillID());
-		}
-		skillSetDto.setStatusDto(statusDto);
-	}
-
-	@Override
-	public void updateSkillSet(SkillSetDto skillSetDto) {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		SkillSetEntity skillSet = new SkillSetEntity();
-		BeanUtils.copyProperties(skillSetDto, skillSet);
-		skillSet = skillSetDAO.update(skillSet);
-		if (skillSet != null) {
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Successfully updated Skill");
-		} else {
-			statusDto.setStatusMessage("Skill not updated properly");
-		}
-		skillSetDto.setStatusDto(statusDto);
-	}
-
-	@Override
-	public void deleteSkillSet(SkillSetDto skillSetDto) {
-		int noOfEntiesDeleted = 0;
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		noOfEntiesDeleted = skillSetDAO.deleteById("SkillSetEntity", skillSetDto.getSkillID());
-		SkillSetDto skillTemp = new SkillSetDto();
-		BeanUtils.copyProperties(skillTemp, skillSetDto);
-		if (noOfEntiesDeleted > 0) {
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Successfully Deleted user");
-		}
-		skillSetDto.setStatusDto(statusDto);
-	}
-
-	@Override
-	public SkillSetListDto fetchSkillSets(Map<String, String> skillGroups, int startIndex, int pageSize, String sortVar) {
-		SkillSetListDto skills = new SkillSetListDto();
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		Collection<SkillSetEntity> skillSets = skillSetDAO.fetchAllSkillSets(startIndex, pageSize, sortVar);
-		if (!skillSets.isEmpty()) {
-			for (SkillSetEntity skillSet : skillSets) {
-				SkillSetDto skillSetDto = new SkillSetDto();
-				BeanUtils.copyProperties(skillSet, skillSetDto);
-				skills.getSkills().add(skillSetDto);
-				if (skillGroups != null && !skillGroups.containsKey(skillSet.getGroupInfo())) {
-					skillGroups.put(skillSet.getGroupInfo(), skillSet.getGroupInfo());
-				}
+	public boolean addSkillSet(SkillSetEntity skillSetEntity) {
+		boolean isAddedSkill = false;
+		SkillSetEntity skillSet = null;
+		try {
+			skillSet = skillSetDAO.findById(skillSetEntity.getSkillID());
+			if (skillSet == null) {
+				skillSetEntity.setSkillID(skillSetEntity.getSkillID().toUpperCase());
+				skillSetDAO.save(skillSetEntity);
+				isAddedSkill = true;
 			}
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-		} else {
-			statusDto.setStatusMessage("Skills are not available, Contact Administrator");
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE SAVING SKILL INTO SKILLENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE SAVING SKILL INTO SKILLENTITY" + ex.getMessage(), ex);
 		}
-		skills.setStatusDto(statusDto);
 
+		return isAddedSkill;
+	}
+
+	@Override
+	public boolean updateSkillSet(SkillSetEntity skillSetEntity) {
+		boolean isSkillSetUpdated = false;
+		try {
+			skillSetDAO.update(skillSetEntity);
+			isSkillSetUpdated = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE UPDATING SKILL INTO SKILLENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE UPDATING SKILL INTO SKILLENTITY" + ex.getMessage(), ex);
+		}
+
+		return isSkillSetUpdated;
+	}
+
+	@Override
+	public boolean deleteSkillSet(SkillSetEntity skillSetEntity) {
+		boolean isSkillSetDeleted = false;
+		try {
+			skillSetDAO.deleteById("SkillSetEntity", skillSetEntity.getSkillID());
+			isSkillSetDeleted = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE DELTEING SKILL SKILLENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE DELTEING SKILL  SKILLENTITY" + ex.getMessage(), ex);
+		}
+		return isSkillSetDeleted;
+	}
+
+	@Override
+	public List<SkillSetEntity> fetchSkillSets(Set<String> skillGroups) {
+		List<SkillSetEntity> skills = null;
+		try {
+			skills = (List<SkillSetEntity>) skillSetDAO.findAll();
+
+			for (SkillSetEntity skillSetEntity : skills) {
+				skillGroups.add(skillSetEntity.getGroupInfo());
+			}
+
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE FETCHING SKILLS FROM SKILLENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE FETCHING SKILLS FROM SKILLENTITY" + ex.getMessage(), ex);
+		}
 		return skills;
 	}
 
-	@Override
-	public int getSkillSetCount() {
-		return skillSetDAO.getSkillSetCount();
-	}
-
-	@Override
-	public SkillSetOptionsResponse getSkillSetOptions() {
-		Collection<SkillSetEntity> skillSets = skillSetDAO.findAll();
-		SkillSetOptionsResponse skillOptions = new SkillSetOptionsResponse();
-		skillOptions.setResult("ERROR");
-		if (!skillSets.isEmpty()) {
-			for (SkillSetEntity skillSet : skillSets) {
-				SkillSetOptionDto skillSetDto = new SkillSetOptionDto();
-				skillSetDto.setValue(skillSet.getSkillID());
-				skillSetDto.setDisplayText(skillSet.getDescription());
-				skillOptions.getOptions().add(skillSetDto);
-			}
-			skillOptions.setResult("OK");
-		} else {
-			skillOptions.setMessage("Something went wrong on server side");
-		}
-		return skillOptions;
-	}
 }

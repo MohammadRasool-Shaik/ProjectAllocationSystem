@@ -15,7 +15,7 @@ import com.happiestminds.projectallocationsystem.service.InitDBService;
  *
  */
 @Controller
-public class InitDBController extends BaseController{
+public class InitDBController {
 	
 	@Autowired
 	private InitDBService initDBService;

@@ -9,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-
 /**
  * @author rasool.shaik
  * 
@@ -17,7 +16,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "user_groups")
 public class UserGroupEntity {
-	
+
 	@Id
 	@Column(length = 10)
 	private String groupId;
@@ -26,8 +25,6 @@ public class UserGroupEntity {
 	private String groupName;
 
 	@OneToMany(mappedBy = "userGroup")
-//	@OnDelete(action = OnDeleteAction.CASCADE)
-//	@Cascade({CascadeType.ALL})
 	private List<UserEntity> users=new ArrayList<UserEntity>();
 
 	/**
@@ -77,14 +74,18 @@ public class UserGroupEntity {
 		this.groupName = groupName;
 	}
 
+	/**
+	 * @return the users
+	 */
 	public List<UserEntity> getUsers() {
 		return users;
 	}
 
+	/**
+	 * @param users the users to set
+	 */
 	public void setUsers(List<UserEntity> users) {
 		this.users = users;
 	}
-
-
 
 }

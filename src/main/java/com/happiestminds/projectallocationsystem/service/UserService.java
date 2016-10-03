@@ -1,10 +1,10 @@
 package com.happiestminds.projectallocationsystem.service;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
-import com.happiestminds.projectallocationsystem.Dto.UserDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserGroupListDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserListDto;
+import com.happiestminds.projectallocationsystem.entity.UserEntity;
 
 /**
  * @author rasool.shaik
@@ -12,21 +12,15 @@ import com.happiestminds.projectallocationsystem.Dto.batch.UserListDto;
  */
 public interface UserService {
 	@Transactional
-	UserDto addUser(UserDto user);
+	public boolean addUser(UserEntity user);
 
 	@Transactional
-	void updateUser(UserDto user);
+	public void updateUser(UserEntity user, String groupId);
 
 	@Transactional
-	void deleteUser(UserDto user, String userName);
+	public void deleteUser(UserEntity user);
 
-	@Transactional(readOnly = true)
-	UserListDto getAllUsersWithGroups(UserGroupListDto groups, int startIndex, int pageSize, String sortVar);
-
-	@Transactional(readOnly = true)
-	UserDto getUser(String userName);
-
-	@Transactional(readOnly = true)
-	int getAllUserCount();
+	@Transactional
+	public List<UserEntity> getAllUsersWithGroups();
 
 }

@@ -24,7 +24,7 @@ public interface AbstractDAO<E, Id extends Serializable> {
 
 	Collection<E> findAll(String entityName) throws HibernateException;
 	
-	int deleteById(String entity, Id id) throws HibernateException;
+	void deleteById(String entity, Id id) throws HibernateException;
 
 	Collection<E> findAll() throws HibernateException;
 	

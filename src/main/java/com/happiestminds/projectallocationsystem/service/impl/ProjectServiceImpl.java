@@ -1,28 +1,21 @@
 package com.happiestminds.projectallocationsystem.service.impl;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
+import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.happiestminds.projectallocationsystem.Dto.ProjectDto;
-import com.happiestminds.projectallocationsystem.Dto.ProjectOptionDto;
-import com.happiestminds.projectallocationsystem.Dto.StatusDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.ProjectListDto;
 import com.happiestminds.projectallocationsystem.dao.ProjectDAO;
-import com.happiestminds.projectallocationsystem.entity.CustomerEntity;
 import com.happiestminds.projectallocationsystem.entity.ProjectEntity;
-import com.happiestminds.projectallocationsystem.enumerator.StatusCodeEnum;
 import com.happiestminds.projectallocationsystem.service.ProjectService;
-import com.happiestminds.projectallocationsystem.util.DateUtil;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
 
+	private static Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class.getSimpleName());
 	@Autowired
 	private ProjectDAO projectDAO;
 
@@ -31,116 +24,65 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void addProject(ProjectDto project) throws ParseException {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
+	public boolean addProject(ProjectEntity project) {
+		boolean isProjectAdded = false;
 		ProjectEntity projectEntity = null;
-		projectEntity = projectDAO.findById(project.getProjectID());
-		boolean dateValidation = DateUtil.isEndDateAfterStartDate(project.getStartDate(), project.getExpectedEndDate());
-		if (projectEntity == null && dateValidation) {
-
-			project.setProjectID(project.getProjectID().toUpperCase());
-			projectEntity = new ProjectEntity();
-			BeanUtils.copyProperties(project, projectEntity);
-			projectEntity.setStartDate(DateUtil.getDate(project.getStartDate()));
-			projectEntity.setExpectedEndDate(DateUtil.getDate(project.getExpectedEndDate()));
-			CustomerEntity customer = new CustomerEntity();
-			customer.setCustomerID(project.getCustomerId());
-			projectEntity.setCustomer(customer);
-			projectDAO.save(projectEntity);
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Project Added Successfully");
-		} else {
-			statusDto.setStatusMessage("Project with same ID Already Exit, Try Another?");
-			if (!dateValidation) {
-				statusDto.setStatusMessage("Please enter an end date after the start date");
+		try {
+			projectEntity = projectDAO.findById(project.getProjectID());
+			if (projectEntity == null) {
+				project.setProjectID(project.getProjectID().toUpperCase());
+				projectDAO.save(project);
+				isProjectAdded = true;
 			}
-			// throwAlredyExistValidationError(SkillSetDto.class.getSimpleName(),
-			// skillSetDto.getSkillID());
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE SAVING PROJECT INTO PROJECTENTIY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE SAVING PROJECT INTO PROJECTENTIY" + ex.getMessage(), ex);
 		}
-		project.setStatusDto(statusDto);
 
+		return isProjectAdded;
 	}
 
 	@Override
-	public void updateProject(ProjectDto project) throws ParseException {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		boolean dateValidation = DateUtil.isEndDateAfterStartDate(project.getStartDate(), project.getExpectedEndDate());
-		if (project != null && dateValidation) {
-			ProjectEntity projectEntity = new ProjectEntity();
-			BeanUtils.copyProperties(project, projectEntity);
-			projectEntity.setStartDate(DateUtil.getDate(project.getStartDate()));
-			projectEntity.setExpectedEndDate(DateUtil.getDate(project.getExpectedEndDate()));
-			CustomerEntity customer = new CustomerEntity();
-			customer.setCustomerID(project.getCustomerId());
-			projectEntity.setCustomer(customer);
-			projectEntity = projectDAO.update(projectEntity);
-			if (projectEntity != null) {
-				statusDto.setStatusCode(StatusCodeEnum.OK);
-				statusDto.setStatusMessage("Successfully updated Project");
-			}
-		} else {
-			if (!dateValidation) {
-				statusDto.setStatusMessage("Please enter an end date after the start date");
-			}
+	public boolean updateProject(ProjectEntity ProjectEntity) {
+		boolean isProjectUpdated = false;
+		try {
+			projectDAO.update(ProjectEntity);
+			isProjectUpdated = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE UPDATING PROJECT INTO PROJECTENTIY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE UPDATING PROJECT INTO PROJECTENTIY" + ex.getMessage(), ex);
 		}
-		project.setStatusDto(statusDto);
 
+		return isProjectUpdated;
 	}
 
 	@Override
-	public void deleteProject(ProjectDto proejct) {
-		int noOfEntiesDeleted = 0;
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		noOfEntiesDeleted = projectDAO.deleteById("ProjectEntity", proejct.getProjectID());
-		ProjectDto proejctTemp = new ProjectDto();
-		BeanUtils.copyProperties(proejctTemp, proejct);
-		if (noOfEntiesDeleted > 0) {
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Successfully Deleted Project");
+	public boolean deleteProject(ProjectEntity ProjectEntity) {
+		boolean isProjectDeleted = false;
+		try {
+			projectDAO.deleteById("ProjectEntity", ProjectEntity.getProjectID());
+			isProjectDeleted = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE DELTEING PROJECT PROJECTENTIY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE DELTEING PROJECT  PROJECTENTIY" + ex.getMessage(), ex);
 		}
-		proejct.setStatusDto(statusDto);
+		return isProjectDeleted;
 	}
 
 	@Override
-	public ProjectListDto fetchAllProjectsWithCustomers(int startIndex, int pageSize, String sortvar) throws ParseException {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		ProjectListDto projects = new ProjectListDto();
-		List<ProjectEntity> projectList = projectDAO.fetchAllProjectWithCustomers(startIndex, pageSize, sortvar);
-		if (!projectList.isEmpty()) {
-			for (ProjectEntity project : projectList) {
-				ProjectDto projectDto = new ProjectDto();
-				BeanUtils.copyProperties(project, projectDto);
-
-				projectDto.setStartDate(DateUtil.parseDate(project.getStartDate()));
-				projectDto.setExpectedEndDate(DateUtil.parseDate(project.getExpectedEndDate()));
-				CustomerEntity customer = project.getCustomer();
-				projectDto.setCustomerId(customer.getCustomerID());
-				projects.getProjects().add(projectDto);
-			}
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-		} else {
-			statusDto.setStatusMessage("Projects are not available, Contact Administrator");
+	public List<ProjectEntity> fetchAllProjectWithCustomers() {
+		List<ProjectEntity> customers = null;
+		try {
+			customers = (List<ProjectEntity>) projectDAO.fetchAllProjectWithCustomers();
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE FETCHING PROJECTS FROM PROJECTENTIY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE FETCHING PROJECTS FROM PROJECTENTIY" + ex.getMessage(), ex);
 		}
-		projects.setStatusDto(statusDto);
-		return projects;
-	}
-
-	@Override
-	public List<ProjectOptionDto> getProjectsAsOptions() {
-		List<ProjectOptionDto> pResponse = new ArrayList<ProjectOptionDto>();
-		Collection<ProjectEntity> projectList = projectDAO.findAll();
-		for (ProjectEntity project : projectList) {
-			ProjectOptionDto projectDto = new ProjectOptionDto();
-			projectDto.setValue(project.getProjectID());
-			projectDto.setDisplayText(project.getProjectName());
-			pResponse.add(projectDto);
-		}
-		return pResponse;
-	}
-
-	@Override
-	public int getProjectsCount() {
-		return projectDAO.getProjectsCount();
+		return customers;
 	}
 
 }

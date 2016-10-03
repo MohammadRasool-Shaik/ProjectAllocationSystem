@@ -1,25 +1,25 @@
 package com.happiestminds.projectallocationsystem.controller;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.happiestminds.projectallocationsystem.Dto.OperationDto;
-import com.happiestminds.projectallocationsystem.Dto.UserGroupDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserGroupListDto;
-import com.happiestminds.projectallocationsystem.response.UserGroupListResponse;
-import com.happiestminds.projectallocationsystem.response.UserGroupOptionsResponse;
-import com.happiestminds.projectallocationsystem.response.UserGroupResponse;
+import com.happiestminds.projectallocationsystem.entity.ModuleEntity;
+import com.happiestminds.projectallocationsystem.entity.OperationEntity;
+import com.happiestminds.projectallocationsystem.entity.UserGroupEntity;
 import com.happiestminds.projectallocationsystem.service.UserGroupService;
 
 /**
@@ -43,80 +43,54 @@ public class UserGroupController extends BaseController {
 
 	@RequestMapping(value = { "/usrgrpm" }, method = RequestMethod.GET)
 	public String userGroupManagement(Model model) {
-		fetchOperationsByUserGroupForMenu(model);
-		return "userGroupMang";
+		model.addAttribute("userGroupList", userGroupService.getAllUserGroups());
+		return "usergroup";
 	}
 
-	@RequestMapping(value = { "/usrgrpm/getAllUserGroups" }, method = RequestMethod.POST)
-	public @ResponseBody
-	UserGroupListResponse getAllUserGroups(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-		UserGroupListResponse userGroupListResponse = new UserGroupListResponse();
-
-		UserGroupListDto userGroupListDto = userGroupService.getAllUserGroups(jtStartIndex, jtPageSize, jtSorting);
-
-		userGroupListResponse.setUserGroups(userGroupListDto.getUserGroups());
-		userGroupListResponse.setResult(userGroupListDto.getStatusDto().getStatusCode().getMsg());
-		userGroupListResponse.setTotalRecordCount(userGroupService.getCountAllUserGroups());
-		userGroupListResponse.setMessage(userGroupListDto.getStatusDto().getStatusMessage());
-
-		return userGroupListResponse;
-	}
-
-	@RequestMapping(value = "/usrgrpm/usergroupactions", method = RequestMethod.POST)
-	public @ResponseBody
-	UserGroupResponse userGroupActions(@RequestParam String action, @ModelAttribute UserGroupDto userGroup) {
-		UserGroupDto userGroupResult = new UserGroupDto();
-		UserGroupResponse userGroupResponse = new UserGroupResponse();
+	@RequestMapping(value = "/usergroupactions", method = RequestMethod.POST)
+	public String userGroupActions(@RequestParam(required = true) String action, @ModelAttribute UserGroupEntity userGroup, BindingResult bindingResult, Model model) {
+		UserGroupEntity userGroupResult = new UserGroupEntity();
 		switch (action.toLowerCase()) {
-		case "save":
-			userGroupService.addUserGroup(userGroup);
+		case "add":
+			boolean isUserGroupAdded = userGroupService.addUserGroup(userGroup);
+			if (!isUserGroupAdded) {
+				model.addAttribute("message", "User Group Already Exist, With Same GroupId " + userGroup.getGroupId());
+			}
 			userGroupResult = userGroup;
 			break;
-		case "update":
+		case "edit":
 			userGroupService.updateUserGroup(userGroup);
 			userGroupResult = userGroup;
 			break;
 		case "delete":
 			userGroupService.deleteUserGroup(userGroup);
-			userGroupResult = userGroup;
+			userGroupResult = new UserGroupEntity();
 			break;
 		}
-		userGroupResponse.setUserGroup(userGroupResult);
-		userGroupResponse.setResult(userGroupResult.getStatusDto().getStatusCode().getMsg());
-		userGroupResponse.setMessage(userGroupResult.getStatusDto().getStatusMessage());
-		return userGroupResponse;
+		model.addAttribute("userGroup", userGroupResult);
+		model.addAttribute("userGroupList", userGroupService.getAllUserGroups());
+		return "usergroup";
 	}
 
-	// TODO : Different approach compare to other requests
-	@RequestMapping(value = "/applyRightsToGroup", method = RequestMethod.POST)
-	public @ResponseBody
-	String applyRightsToGroup(@ModelAttribute UserGroupDto userGroup, @RequestParam(required = false) List<String> operations, Model model) {
+	@RequestMapping(value = "/applyRightsToGroup", method = RequestMethod.GET)
+	public String applyRightsToGroup(@RequestParam String groupId, @RequestParam String operations, Model model) {
 		boolean isActionPerformed = false;
-		String groupId = userGroup.getGroupId();
-		// JSONObject obj = new JSONObject();
-		// obj.put("groupId", groupId);
-		try {
-			userGroupService.updateUserGroup(userGroup);
-			isActionPerformed = userGroupService.applyRightsToGroup(groupId, operations);
-		} catch (Exception ex) {
-			logger.error("While updating rights got some exception", ex);
-		}
-		if (isActionPerformed) {
-			return groupId + ",Success";
-		} else {
-			return groupId + ",Failure";
-		}
+		isActionPerformed = userGroupService.applyRightsToGroup(groupId, operations);
+		Map<String, List<OperationEntity>> operationsByGroup = userGroupService.fetchOperationsByGroup(groupId);
+
+		model.addAttribute("operationsByGroup", operationsByGroup);
+		model.addAttribute("groupId", groupId);
+		model.addAttribute("isActionPerformed", isActionPerformed);
+		return "grouprights";
 	}
 
 	@RequestMapping(value = "/fetchgrouprights", method = RequestMethod.GET)
-	public String fetchOperationsByUserGroup(@ModelAttribute UserGroupDto userGroup, Model model) {
-		Map<String, List<OperationDto>> operationsByGroup = null;
+	public String fetchOperationsByUserGroup(@RequestParam String groupId, Model model) {
+		Map<String, List<OperationEntity>> operationsByGroup = null;
 		try {
-			String groupId = userGroup.getGroupId();
-			operationsByGroup = userGroupService.fetchOperationsByGroup(userGroup.getGroupId());
+			operationsByGroup = userGroupService.fetchOperationsByGroup(groupId);
 			model.addAttribute("operationsByGroup", operationsByGroup);
 			model.addAttribute("groupId", groupId);
-			model.addAttribute("groupName", userGroup.getGroupName());
 		} catch (Exception e) {
 			logger.error("EXCPTION OCCURED WHILE PROCESSING REQUEST" + e.toString());
 		}
@@ -124,15 +98,16 @@ public class UserGroupController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
-	public String home(Model model) {
-		fetchOperationsByUserGroupForMenu(model);
+	public String fetchOperationsByUserGroupForHome(Model model) {
+		try {
+			UserDetails currentUser = getCurrentUser();
+			Collection<GrantedAuthority> authorities = currentUser.getAuthorities();
+			Set<ModuleEntity> modules = userGroupService.fetchModulesByRights(authorities);
+			model.addAttribute("modules", modules);
+		} catch (Exception e) {
+			logger.error("EXCPTION OCCURED WHILE PROCESSING REQUEST" + e.toString());
+		}
 		return "home";
-	}
-
-	@RequestMapping(value = "/usrgrpm/getAllUserGroupOptions", method = RequestMethod.POST)
-	public @ResponseBody
-	UserGroupOptionsResponse getAllUserGroupsOptions() {
-		return userGroupService.getAllUserGroupsOptions();
 	}
 
 }

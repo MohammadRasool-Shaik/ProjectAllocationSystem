@@ -11,11 +11,7 @@ import com.happiestminds.projectallocationsystem.entity.SkillSetEntity;
  * 
  */
 public interface SkillSetDAO extends AbstractDAO<SkillSetEntity, String> {
-
-	List<String> fetchAllSkillSetIds() throws HibernateException;
-
-	List<SkillSetEntity> fetchAllSkillSets(int startIndex, int pageSize, String sortVar) throws HibernateException;
-
-	int getSkillSetCount();
+	
+	List<String> fetchAllSkillSetIds()throws HibernateException;
 
 }

@@ -6,6 +6,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import com.happiestminds.projectallocationsystem.Dto.EmailDto;
-import com.happiestminds.projectallocationsystem.Dto.StatusDto;
-import com.happiestminds.projectallocationsystem.Dto.UserDto;
 import com.happiestminds.projectallocationsystem.dao.UserDAO;
 import com.happiestminds.projectallocationsystem.entity.UserEntity;
-import com.happiestminds.projectallocationsystem.enumerator.StatusCodeEnum;
 import com.happiestminds.projectallocationsystem.service.MailService;
 
 @Service("mailService")
@@ -40,23 +38,22 @@ public class MailServiceImpl implements MailService {
 	}
 
 	@Override
-	public void raiseAllocationRequestEmail(EmailDto emailData) throws MessagingException {
-		List<String> emailIds = emailData.getEmailIds();
-		String [] toMailIds = emailIds.toArray(new String[emailIds.size()]);
-		MimeMessage generateRequest = javaMailSender.createMimeMessage();
-		MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(generateRequest, true);
-		mimeMessageHelper.setSubject(emailData.getSubject());
-		mimeMessageHelper.setTo(toMailIds[0]);
-		mimeMessageHelper.setBcc(toMailIds);
-		mimeMessageHelper.setFrom(emailData.getFromMailId());
-		mimeMessageHelper.setText(emailData.getMessage(), true);
-		javaMailSender.send(generateRequest);
+	public void sendInviteEmails(EmailDto requestData) throws MessagingException{
+		List<String> emailIds = requestData.getEmailIds();
+		for (String email : emailIds) {
+			MimeMessage generateRequest = javaMailSender.createMimeMessage();
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(generateRequest, true);
+			mimeMessageHelper.setSubject(requestData.getSubject());
+			mimeMessageHelper.setTo(email);
+			mimeMessageHelper.setText(requestData.getMessage(), true);
+			javaMailSender.send(generateRequest);
+		}
+
 	}
 
 	@Override
-	public void sendMail(String sendToEmail, String mailText, String subject) {
+	public void sendMail(String sendToEmail, String mailText, String subject) throws MessagingException {
 		SimpleMailMessage mailMsg = new SimpleMailMessage();
-		
 		mailMsg.setTo(sendToEmail);
 		mailMsg.setText(mailText);
 		mailMsg.setSubject(subject);
@@ -65,33 +62,16 @@ public class MailServiceImpl implements MailService {
 	}
 
 	@Override
-	public UserDto forgotPassword(String email) {
-		UserDto userResponse = new UserDto();
-		StatusDto status = new StatusDto(StatusCodeEnum.FAILURE);
+	public boolean forgotPassword(String email) throws MessagingException, HibernateException {
+		boolean isMailSend = false;
 		UserEntity user = userDAO.findByUserByEmail(email);
 		if (user != null) {
 			String password = createPassword();
 			userDAO.updateUserPWD(user.getUserName(), createHash(password));
 			sendForgotPasswordMail(user.getUserName(), user.getEmailId(), password);
-			status.setStatusCode(StatusCodeEnum.SUCCESS);
-			status.setStatusMessage("Your password successfully changed, you will get temporary password to " + email + " mailId");
-		} else {
-			status.setStatusMessage(email + " with user not exist, Try emailId with you registered");
+			isMailSend = true;
 		}
-		userResponse.setStatusDto(status);
-		return userResponse;
-	}
-
-	@Async
-	public void sendForgotPasswordMail(String userName, String sendToEmail, String password) {
-		try {
-			String mailText = "Hi " + userName + ",\n\n" + "You recently asked to reset your password:\t" + password;
-			sendMail(sendToEmail, mailText, "Login Details");
-		} catch (Exception ex) {
-			logger.error("Error sending email for the  user: {}", ex);
-			logger.error("Error sending email for the  user: {} userName: " + userName + " sendToEmail:" + sendToEmail);
-			throw ex;
-		}
+		return isMailSend;
 	}
 
 	public String createHash(String password) {
@@ -102,22 +82,28 @@ public class MailServiceImpl implements MailService {
 		return RandomStringUtils.randomAlphanumeric(10);
 	}
 
-	@Override
-	public UserDto changePassword(String userName, String password, String newPassword) {
-		UserDto userResponse = new UserDto();
-		userResponse.setUserName(userName);
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.FAILURE);
-		UserEntity user = userDAO.findByUserName(userName);
-
-		String userPassword = user.getPassword();
-		if (password != null && userPassword.equals(createHash(password))) {
-			userDAO.updateUserPWD(user.getUserName(), createHash(newPassword));
-			statusDto.setStatusCode(StatusCodeEnum.SUCCESS);
-			statusDto.setStatusMessage("Password Successfully Changed");
-		} else {
-			statusDto.setStatusCode(StatusCodeEnum.USERCHANGEPASSWORDWRONGMESSAGE);
+	@Async
+	public void sendForgotPasswordMail(String userName, String sendToEmail, String password) throws MessagingException {
+		try {
+			String mailText = "Hi " + userName + ",\n\n" + "You recently asked to reset your password:\t" + password;
+			sendMail(sendToEmail, mailText, "Login Details");
+		} catch (Exception ex) {
+			logger.error("Error sending email for the  user: {}", ex);
+			logger.error("Error sending email for the  user: {} userName: " + userName + " sendToEmail:" + sendToEmail);
 		}
-		userResponse.setStatusDto(statusDto);
-		return userResponse;
+	}
+
+	@Override
+	public boolean changePassword(String userName, String password, String newPassword) throws HibernateException {
+		boolean isPasswordChanged = false;
+		UserEntity user = userDAO.findByUserName(userName);
+		if (user != null) {
+			String userPassword = user.getPassword();
+			if (password != null && userPassword.equals(createHash(password))) {
+				userDAO.updateUserPWD(user.getUserName(), createHash(newPassword));
+				isPasswordChanged = true;
+			}
+		}
+		return isPasswordChanged;
 	}
 }

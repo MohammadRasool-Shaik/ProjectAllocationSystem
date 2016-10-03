@@ -1,19 +1,17 @@
 package com.happiestminds.projectallocationsystem.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.happiestminds.projectallocationsystem.Dto.CustomerDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.CustomerListDto;
-import com.happiestminds.projectallocationsystem.response.CustomerListResponse;
-import com.happiestminds.projectallocationsystem.response.CustomerOptionsResponse;
-import com.happiestminds.projectallocationsystem.response.CustomerResponse;
+import com.happiestminds.projectallocationsystem.entity.CustomerEntity;
 import com.happiestminds.projectallocationsystem.service.CustomerService;
 
 /**
@@ -21,7 +19,7 @@ import com.happiestminds.projectallocationsystem.service.CustomerService;
  * 
  */
 @Controller
-public class CustomerController extends BaseController {
+public class CustomerController {
 
 	@Autowired
 	private CustomerService customerService;
@@ -35,50 +33,42 @@ public class CustomerController extends BaseController {
 
 	@RequestMapping(value = "custm", method = RequestMethod.GET)
 	public String customerManagement(Model model) {
-		fetchOperationsByUserGroupForMenu(model);
-		return "customersMang";
+		List<CustomerEntity> customers = customerService.fetchCustomers();
+		if (customers.isEmpty()) {
+			model.addAttribute("customersEmptyMsg", "Customers are not available, Contact Administrator");
+		} else {
+			model.addAttribute("customerList", customers);
+		}
+		return "customers";
 	}
 
-	@RequestMapping(value = "/custm/fetchcustomers", method = RequestMethod.POST)
-	public @ResponseBody
-	CustomerListResponse getAllCustomers(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-		CustomerListResponse cuListResponse = new CustomerListResponse();
-		CustomerListDto customers = customerService.fetchCustomers(jtStartIndex, jtPageSize, jtSorting);
-
-		cuListResponse.setCustomers(customers.getCustomers());
-		cuListResponse.setTotalRecordCount(customerService.getCountAllCustomers());
-		cuListResponse.setResult(customers.getStatusDto().getStatusCode().getMsg());
-		cuListResponse.setMessage(customers.getStatusDto().getStatusMessage());
-		return cuListResponse;
-	}
-
-	@RequestMapping(value = "/custm/customeractions", method = RequestMethod.POST)
-	public @ResponseBody
-	CustomerResponse customerActions(@RequestParam String action, @ModelAttribute CustomerDto customer) {
-		CustomerDto customerResult = new CustomerDto();
-		CustomerResponse cuResponse = new CustomerResponse();
+	@RequestMapping(value = "customeractions", method = RequestMethod.POST)
+	public String customerActions(@ModelAttribute CustomerEntity customer, @RequestParam(required = true) String action, BindingResult bindingResult, Model model) {
+		CustomerEntity customerResult = new CustomerEntity();
 		switch (action.toLowerCase()) {
-		case "save":
-			customerService.addCustomer(customer);
+		case "add":
+			boolean isaddSkillSet = customerService.addCustomer(customer);
+			if (!isaddSkillSet) {
+				model.addAttribute("message", "Customer already Exist, With Same Id " + customer.getCustomerID());
+			}
 			customerResult = customer;
 			break;
-		case "update":
+		case "edit":
 			customerService.updateCustomer(customer);
 			customerResult = customer;
 			break;
 		case "delete":
 			customerService.deleteCustomer(customer);
-			customerResult = customer;
+			customerResult = new CustomerEntity();
 			break;
 		}
-		cuResponse.setCustomerResponse(customerResult);
-		cuResponse.setResult(customerResult.getStatusDto().getStatusCode().getMsg());
-		cuResponse.setMessage(customerResult.getStatusDto().getStatusMessage());
-		return cuResponse;
-	}
-
-	@RequestMapping(value = "/custm/getAllCustomers", method = RequestMethod.POST)
-	public @ResponseBody CustomerOptionsResponse getAllCustomers() {
-		return customerService.getAllCustomers();
+		List<CustomerEntity> customers = customerService.fetchCustomers();
+		if (customers.isEmpty()) {
+			model.addAttribute("customersEmptyMsg", "Customers are not available, Contact Administrator");
+		} else {
+			model.addAttribute("customerList", customers);
+		}
+		model.addAttribute("customer", customerResult);
+		return "customers";
 	}
 }

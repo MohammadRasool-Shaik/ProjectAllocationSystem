@@ -6,15 +6,13 @@ import java.util.List;
  * @author rasool.shaik
  * 
  */
-public class EmailDto {
+public class EmailDto{
 
 	private String subject;
 
 	private String message;
 
 	private List<String> emailIds;
-
-	private String fromMailId;
 
 	/**
 	 * 
@@ -44,21 +42,6 @@ public class EmailDto {
 
 	public void setEmailIds(List<String> emailIds) {
 		this.emailIds = emailIds;
-	}
-
-	/**
-	 * @return the fromMailId
-	 */
-	public String getFromMailId() {
-		return fromMailId;
-	}
-
-	/**
-	 * @param fromMailId
-	 *            the fromMailId to set
-	 */
-	public void setFromMailId(String fromMailId) {
-		this.fromMailId = fromMailId;
 	}
 
 }

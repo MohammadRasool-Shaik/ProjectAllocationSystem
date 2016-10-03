@@ -1,23 +1,19 @@
 package com.happiestminds.projectallocationsystem.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.happiestminds.projectallocationsystem.Dto.SkillSetDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.SkillSetListDto;
-import com.happiestminds.projectallocationsystem.response.SkillSetListResponse;
-import com.happiestminds.projectallocationsystem.response.SkillSetOptionsResponse;
-import com.happiestminds.projectallocationsystem.response.SkillSetResponse;
+import com.happiestminds.projectallocationsystem.entity.SkillSetEntity;
 import com.happiestminds.projectallocationsystem.service.SkillSetService;
 
 /**
@@ -25,10 +21,11 @@ import com.happiestminds.projectallocationsystem.service.SkillSetService;
  * 
  */
 @Controller
-public class SkillSetController extends BaseController {
+public class SkillSetController {
 
 	@Autowired
 	private SkillSetService skillSetService;
+
 
 	/**
 	 * 
@@ -36,62 +33,49 @@ public class SkillSetController extends BaseController {
 	public SkillSetController() {
 	}
 
-	@RequestMapping(value = "/skillm", method = RequestMethod.GET)
-	public ModelAndView skillManagement(Model model) {
-		fetchOperationsByUserGroupForMenu(model);
-		return new ModelAndView("skillsetmang");
+	@RequestMapping(value = "skillm", method = RequestMethod.GET)
+	public String skillSetMaintainance(Model model) {
+		Set<String> skillGroups = new HashSet<String>();
+		List<SkillSetEntity> skillSets = skillSetService.fetchSkillSets(skillGroups);
+		if (skillSets.isEmpty()) {
+			model.addAttribute("skillsEmptyMsg", "Skills are not available, Contact Administrator");
+		} else {
+			model.addAttribute("skillSetList", skillSets);
+		}
+		model.addAttribute("skillGroups", skillGroups);
+		return "skillset";
 	}
 
-	@RequestMapping(value = "/skillm/getAllSkills", method = RequestMethod.POST)
-	public @ResponseBody
-	SkillSetListResponse skillSetMaintainance(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-		SkillSetListResponse skillSetListResponse = new SkillSetListResponse();
-
-		Map<String, String> skillGroups = new HashMap<String, String>();
-		SkillSetListDto skillSets = skillSetService.fetchSkillSets(skillGroups, jtStartIndex, jtPageSize, jtSorting);
-		int skillSetCount = skillSetService.getSkillSetCount();
-
-		skillSetListResponse.setSkills(skillSets.getSkills());
-		skillSetListResponse.setTotalRecordCount(skillSetCount);
-		skillSetListResponse.setSkillGroups(skillGroups);
-
-		skillSetListResponse.setResult(skillSets.getStatusDto().getStatusCode().getMsg());
-		skillSetListResponse.setMessage(skillSets.getStatusDto().getStatusMessage());
-
-		return skillSetListResponse;
-	}
-
-	@RequestMapping(value = "/skillm/skillsetactions", method = RequestMethod.POST)
-	public @ResponseBody
-	SkillSetResponse skillSetActions(@RequestParam String action, @ModelAttribute SkillSetDto skillSet) {
-		SkillSetDto skillsetResult = new SkillSetDto();
-		SkillSetResponse skillSetResponse = new SkillSetResponse();
+	@RequestMapping(value = "skillsetactions", method = RequestMethod.POST)
+	public String skillSetActions(@ModelAttribute SkillSetEntity skillSet, @RequestParam String action, BindingResult bindingResult, Model model) {
+		SkillSetEntity skillsetResult = new SkillSetEntity();
 		switch (action.toLowerCase()) {
-		case "save":
-			skillSetService.addSkillSet(skillSet);
+		case "add":
+			boolean isaddSkillSet = skillSetService.addSkillSet(skillSet);
+			if (!isaddSkillSet) {
+				model.addAttribute("message", "SkillSet already Exist, With Same Id " + skillSet.getSkillID());
+			}
 			skillsetResult = skillSet;
 			break;
-		case "update":
+		case "edit":
 			skillSetService.updateSkillSet(skillSet);
 			skillsetResult = skillSet;
 			break;
 		case "delete":
 			skillSetService.deleteSkillSet(skillSet);
-			skillsetResult = skillSet;
+			skillsetResult = new SkillSetEntity();
 			break;
 		}
-		skillSetResponse.setSkillSet(skillsetResult);
-
-		skillSetResponse.setResult(skillsetResult.getStatusDto().getStatusCode().getMsg());
-		skillSetResponse.setMessage(skillsetResult.getStatusDto().getStatusMessage());
-
-		return skillSetResponse;
-	}
-
-	@RequestMapping(value = "/skillm/getSkillOptions", method = RequestMethod.POST)
-	public @ResponseBody
-	SkillSetOptionsResponse getSkillOptions() {
-		return skillSetService.getSkillSetOptions();
+		model.addAttribute("skillSet", skillsetResult);
+		Set<String> skillGroups = new HashSet<String>();
+		List<SkillSetEntity> skillSets = skillSetService.fetchSkillSets(skillGroups);
+		if (skillSets.isEmpty()) {
+			model.addAttribute("skillsEmptyMsg", "Skills are not available, Contact Administrator");
+		} else {
+			model.addAttribute("skillSetList", skillSets);
+			model.addAttribute("skillGroups", skillGroups);
+		}
+		return "skillset";
 	}
 
 }

@@ -39,18 +39,11 @@ public class GroupRightsDaoImpl extends AbstractDaoImpl<GroupRightsEntity, Group
 	@Override
 	public void revokeGroupRightsFromGroup(String groupId, String operationId) throws HibernateException {
 		Session session = sessionFactory.getCurrentSession();
-		Query createQuery = null;
-		//TODO : u can implement a filter for this
-		if (operationId != null) {
-			createQuery = session.createQuery("delete GroupRightsEntity where groupRightPk.groupId=:groupId and groupRightPk.operationId=:operationId");
-			createQuery.setParameter("operationId", operationId);
-		} else {
-			createQuery = session.createQuery("delete GroupRightsEntity where groupRightPk.groupId=:groupId");
-		}
+		Query createQuery = session.createQuery("delete GroupRightsEntity where groupRightPk.groupId=:groupId and groupRightPk.operationId=:operationId");
 		createQuery.setParameter("groupId", groupId);
+		createQuery.setParameter("operationId", operationId);
 		createQuery.executeUpdate();
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	@Override

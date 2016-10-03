@@ -1,12 +1,11 @@
 package com.happiestminds.projectallocationsystem.service;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.happiestminds.projectallocationsystem.Dto.SkillSetDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.SkillSetListDto;
-import com.happiestminds.projectallocationsystem.response.SkillSetOptionsResponse;
+import com.happiestminds.projectallocationsystem.entity.SkillSetEntity;
 
 /**
  * @author rasool.shaik
@@ -15,20 +14,14 @@ import com.happiestminds.projectallocationsystem.response.SkillSetOptionsRespons
 public interface SkillSetService {
 
 	@Transactional(readOnly=false)
-	void addSkillSet(SkillSetDto skillSetDto);
+	boolean addSkillSet(SkillSetEntity skillSetEntity);
 
 	@Transactional(readOnly=false)
-	void updateSkillSet(SkillSetDto skillSetDto);
+	boolean updateSkillSet(SkillSetEntity skillSetEntity);
 
 	@Transactional
-	void deleteSkillSet(SkillSetDto skillSetDto);
+	boolean deleteSkillSet(SkillSetEntity skillSetEntity);
 
 	@Transactional(readOnly=true)
-	SkillSetListDto fetchSkillSets(Map<String,String> skillGroups, int jtStartIndex, int jtPageSize, String sortVar);
-	
-	@Transactional(readOnly=true)
-	SkillSetOptionsResponse getSkillSetOptions();
-
-	@Transactional(readOnly=true)
-	int getSkillSetCount();
+	List<SkillSetEntity> fetchSkillSets(Set<String> skillGroups);
 }

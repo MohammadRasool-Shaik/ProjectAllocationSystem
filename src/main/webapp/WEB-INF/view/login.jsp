@@ -7,49 +7,36 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Project Allocation System Login</title>
-<link rel="stylesheet" type="text/css" href="<c:url value="/styles/projectAllocation.css"/>"/>
 </head>
 <body>
-	<h2 align="center">Login Here</h2>
-	<c:if test="${not empty user}">
-		<div class="${user.statusDto.statusCode.value eq 1?'success':'error'}">
-			 <span>${user.statusDto.statusMessage}</span>
-		</div>
-	</c:if>
-	<div id="forgotPWDErrorMessage" style="display: none; margin:auto;"></div>
-	<div class="displayTable">
-		<form id="loginForm" action="j_spring_security_check" method="POST">
-			<div class="displayRow">
-				<div class="displayCell">UserName:</div>
-				<div class="displayCell"><input id="username" name="j_username" type="text" /></div>
-			</div>
-			<div class="displayRow">
-				<div class="displayCell">Password:</div>
-				<div class="displayCell"><input id="password" name="j_password" type="password" /></div>
-			</div>
-			<div class="displayRow">
-				<div class="displayCell"><a href="<c:url value='register'></c:url>"> Register</a></div>
-				<div class="displayCell"><input type="submit" value="Login" /></div>
-			</div>
-			<div class="displayRow"><div class="displayCell"><a href="#" id="forgotpwdButton">Forgot your password?</a></div></div>
-		</form>
-	</div>
-	<form class="displayTable" style="display: none" id="forgotpasswordForm">
-		<div class="displayRow">
-			<div class="displayCell">Email Id</div><div class="displayCell"> <input type="email" id="emailId" name="emailId" /> <input type="hidden" id="forgotPasswordURL" value="${pageContext.request.contextPath}" name="emailId" /> </div>
-		</div>
-		<div class="displayRow">
-			<div class="displayCell"></div><div class="displayCell" align="right"> <input id="forgotPWD" type="submit" value="Email Password"></div>
-		</div>
+	<h2>Login Here</h2>
+	<c:if test="${not empty registermsg}">${registermsg}</c:if>
+	<c:if test="${not empty user}"> Hi ${user.userName}, You Registered Successfully, Login Now </c:if>
+	<form action="j_spring_security_check" method="POST">
+		<table>
+			<thead>Prove Yourself, Whom You Are?
+			</thead>
+			<tr>
+				<td>UserName:</td>
+				<td><input name="j_username" type="text" /></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<td><input name="j_password" type="password" /></td>
+			</tr>
+			<tr>
+				<td><a href="<c:url value='getregister'></c:url>"> Register</a></td>
+				<td><input type="submit" value="Login" /></td>
+			</tr>
+		</table>
 	</form>
-	
-				
-			
+
+	<form:form action="forgotPassword" commandName="forgotPassword"
+		method="POST">
+		Email <input type="text" name="emailId" />
+		<input type="submit" value="forgot password">
+	</form:form>
 	<font color="Red"> <span>${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</span>
 	</font>
-	
-	<%@ include file="/WEB-INF/view/jsincludes.jsp"%>
-	
-	
 </body>
 </html>

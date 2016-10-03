@@ -34,7 +34,7 @@ public abstract class AbstractDaoImpl<E extends Object, Id extends Serializable>
 	public E save(E entity) {
 		Session currentSession = sessionFactory.getCurrentSession();
 		currentSession.clear();
-		currentSession.persist(entity);
+		currentSession.save(entity);
 		currentSession.flush();
 		return entity;
 	}
@@ -50,7 +50,7 @@ public abstract class AbstractDaoImpl<E extends Object, Id extends Serializable>
 	public E update(E entity) throws HibernateException {
 		Session currentSession = sessionFactory.getCurrentSession();
 		currentSession.clear();
-		currentSession.merge(entity);
+		currentSession.update(entity);
 		currentSession.flush();
 		return entity;
 
@@ -81,11 +81,11 @@ public abstract class AbstractDaoImpl<E extends Object, Id extends Serializable>
 	}
 
 	@Override
-	public int deleteById(String entity, Id id) {
+	public void deleteById(String entity, Id id) {
 		Session session = sessionFactory.getCurrentSession();
 		Query query = session.createQuery("delete FROM " + entity + " WHERE id=:id");
 		query.setParameter("id", id);
-		return query.executeUpdate();
+		query.executeUpdate();
 
 	}
 

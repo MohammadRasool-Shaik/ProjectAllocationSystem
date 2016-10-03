@@ -7,7 +7,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -35,7 +34,6 @@ public class OperationDaoImpl extends AbstractDaoImpl<OperationEntity, String> i
 		Session session = sessionFactory.getCurrentSession();
 		Criteria criteria = session.createCriteria(OperationEntity.class, "o");
 		criteria.createAlias("o.module", "m", CriteriaSpecification.INNER_JOIN);
-		criteria.addOrder(Order.asc("o.viewOrder"));
 		return (List<OperationEntity>) criteria.list();
 	}
 

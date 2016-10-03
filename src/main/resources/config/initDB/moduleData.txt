@@ -7,4 +7,3 @@ APPCONF,Application Configuration,6
 ALLOCAM,Allocation management,7
 REPORTS,Report Generation,8
 AUDIT,View/Export Audit Trail,9
-EMPM,Employee Management,10

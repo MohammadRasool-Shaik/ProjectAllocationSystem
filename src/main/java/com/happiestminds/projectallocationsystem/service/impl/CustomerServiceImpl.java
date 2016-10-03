@@ -1,23 +1,20 @@
 package com.happiestminds.projectallocationsystem.service.impl;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.springframework.beans.BeanUtils;
+import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.happiestminds.projectallocationsystem.Dto.CustomerDto;
-import com.happiestminds.projectallocationsystem.Dto.CustomerOptionDto;
-import com.happiestminds.projectallocationsystem.Dto.StatusDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.CustomerListDto;
 import com.happiestminds.projectallocationsystem.dao.CustomerDAO;
 import com.happiestminds.projectallocationsystem.entity.CustomerEntity;
-import com.happiestminds.projectallocationsystem.enumerator.StatusCodeEnum;
-import com.happiestminds.projectallocationsystem.response.CustomerOptionsResponse;
 import com.happiestminds.projectallocationsystem.service.CustomerService;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+	private static Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class.getSimpleName());
 
 	@Autowired
 	private CustomerDAO customerDAO;
@@ -27,93 +24,66 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public void addCustomer(CustomerDto customer) {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		CustomerEntity customerEntity = customerDAO.findById(customer.getCustomerID());
-		if (customerEntity == null) {
-			customer.setCustomerID(customer.getCustomerID().toUpperCase());
-			customerEntity = new CustomerEntity();
-			BeanUtils.copyProperties(customer, customerEntity);
-			customerDAO.save(customerEntity);
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Customer Added Successfully");
-		} else {
-			statusDto.setStatusMessage("Customer with same ID Already Exit, Try Another?");
-			// throwAlredyExistValidationError(SkillSetDto.class.getSimpleName(),
-			// skillSetDto.getSkillID());
-		}
-		customer.setStatusDto(statusDto);
-	}
-
-	@Override
-	public void updateCustomer(CustomerDto customer) {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		CustomerEntity customerEntity = new CustomerEntity();
-		BeanUtils.copyProperties(customer, customerEntity);
-		customerEntity = customerDAO.update(customerEntity);
-		if (customerEntity != null) {
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Successfully updated Customer");
-		}
-		customer.setStatusDto(statusDto);
-
-	}
-
-	@Override
-	public void deleteCustomer(CustomerDto customer) {
-		int noOfEntiesDeleted = 0;
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		noOfEntiesDeleted = customerDAO.deleteById("CustomerEntity", customer.getCustomerID());
-		CustomerDto customerTemp = new CustomerDto();
-		BeanUtils.copyProperties(customerTemp, customer);
-		if (noOfEntiesDeleted > 0) {
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-			statusDto.setStatusMessage("Successfully Deleted Customer");
-		}
-		customer.setStatusDto(statusDto);
-	}
-
-	@Override
-	public CustomerListDto fetchCustomers(int startIndex, int pageSize, String sortVar) {
-		CustomerListDto customers = new CustomerListDto();
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		Collection<CustomerEntity> customerList = customerDAO.fetchAllCustomers(startIndex, pageSize, sortVar);
-		if (!customerList.isEmpty()) {
-			for (CustomerEntity customerEntiy : customerList) {
-				CustomerDto customer = new CustomerDto();
-				BeanUtils.copyProperties(customerEntiy, customer);
-				customers.getCustomers().add(customer);
+	public boolean addCustomer(CustomerEntity customer) {
+		boolean isSavedCustomer = false;
+		CustomerEntity customerEntity = null;
+		try {
+			customerEntity = customerDAO.findById(customer.getCustomerID());
+			if (customerEntity == null) {
+				customer.setCustomerID(customer.getCustomerID().toUpperCase());
+				customerDAO.save(customer);
+				isSavedCustomer = true;
 			}
-			statusDto.setStatusCode(StatusCodeEnum.OK);
-		} else {
-			statusDto.setStatusMessage("customers are not available, Contact Administrator");
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE SAVING CUTOMER INTO CUSTOMER ENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE SAVING CUTOMER INTO CUSTOMER ENTITY" + ex.getMessage(), ex);
 		}
-		customers.setStatusDto(statusDto);
 
+		return isSavedCustomer;
+	}
+
+	@Override
+	public boolean updateCustomer(CustomerEntity customer) {
+		boolean isUpdatedCustomer = false;
+		try {
+			customerDAO.update(customer);
+			isUpdatedCustomer = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED  WHILE UPDATING CUTOMER INTO CUSTOMER ENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE UPDATING CUTOMER INTO CUSTOMER ENTITY" + ex.getMessage(), ex);
+		}
+
+		return isUpdatedCustomer;
+	}
+
+	@Override
+	public boolean deleteCustomer(CustomerEntity customer) {
+		boolean isCustomerDeleted = false;
+		try {
+			customerDAO.deleteById("CustomerEntity", customer.getCustomerID());
+			isCustomerDeleted = true;
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE DELTEING CUTOMER FROM CUSTOMER ENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE DELTEING CUTOMER FROM CUSTOMER ENTITY" + ex.getMessage(), ex);
+		}
+		return isCustomerDeleted;
+	}
+
+	@Override
+	public List<CustomerEntity> fetchCustomers() {
+		List<CustomerEntity> customers = null;
+		try {
+			customers = (List<CustomerEntity>) customerDAO.findAll();
+
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE FETCHING CUTOMER FROM CUSTOMER ENTITY" + hex.getMessage(), hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED  WHILE FETCHING CUTOMER FROM CUSTOMER ENTITY" + ex.getMessage(), ex);
+		}
 		return customers;
 	}
 
-	@Override
-	public int getCountAllCustomers() {
-		return customerDAO.getCountAllCustomers();
-	}
-
-	@Override
-	public CustomerOptionsResponse getAllCustomers() {
-		CustomerOptionsResponse cuResponse = new CustomerOptionsResponse();
-		Collection<CustomerEntity> customerList = customerDAO.findAll();
-		cuResponse.setResult("ERROR");
-		if (!customerList.isEmpty()) {
-			for (CustomerEntity customerEntiy : customerList) {
-				CustomerOptionDto customerOptionDto = new CustomerOptionDto();
-				customerOptionDto.setDisplayText(customerEntiy.getCustomerName());
-				customerOptionDto.setValue(customerEntiy.getCustomerID());
-				cuResponse.getOptions().add(customerOptionDto);
-			}
-			cuResponse.setResult("OK");
-		} else {
-			cuResponse.setMessage("customers are not available, Contact Administrator");
-		}
-		return cuResponse;
-	}
 }

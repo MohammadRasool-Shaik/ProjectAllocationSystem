@@ -7,7 +7,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinFragment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,48 +65,11 @@ public class UserGroupDaoImpl extends AbstractDaoImpl<UserGroupEntity, String> i
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserGroupEntity> fetchAllUsersWithGroups(int startIndex, int pageSize, String sortVar) throws HibernateException {
+	public List<UserGroupEntity> fetchAllUsersWithGroups() throws HibernateException {
 		Session session = sessionFactory.getCurrentSession();
 		Criteria criteria = session.createCriteria(UserGroupEntity.class, "ug");
-		criteria.createAlias("ug.users", "u", CriteriaSpecification.LEFT_JOIN);
-		criteria.setFirstResult(startIndex);
-		criteria.setMaxResults(pageSize);
-		if (sortVar != null) {
-			String[] sortInfo = sortVar.split(" ");
-			String sortOrder = sortInfo[1];
-			if (sortOrder.equalsIgnoreCase("ASC")) {
-				criteria.addOrder(Order.asc("u." + sortInfo[0]));
-			} else {
-				criteria.addOrder(Order.desc("u." + sortInfo[0]));
-			}
-		}
+		criteria.createAlias("ug.user", "u", CriteriaSpecification.LEFT_JOIN);
 		List<UserGroupEntity> userGroups = (List<UserGroupEntity>) criteria.list();
 		return userGroups;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<UserGroupEntity> fetchAllUsersGroups(int startIndex, int pageSize, String sortVar) throws HibernateException {
-		Session session = sessionFactory.getCurrentSession();
-		Criteria criteria = session.createCriteria(UserGroupEntity.class, "ug");
-		criteria.setFirstResult(startIndex);
-		criteria.setMaxResults(pageSize);
-		if (sortVar != null) {
-			String[] sortInfo = sortVar.split(" ");
-			String sortOrder = sortInfo[1];
-			if (sortOrder.equalsIgnoreCase("ASC")) {
-				criteria.addOrder(Order.asc(sortInfo[0]));
-			} else {
-				criteria.addOrder(Order.desc(sortInfo[0]));
-			}
-		}
-		List<UserGroupEntity> userGroups = (List<UserGroupEntity>) criteria.list();
-		return userGroups;
-	}
-
-	@Override
-	public int getCountAllUserGroups() throws HibernateException {
-		int count = ((Long) sessionFactory.getCurrentSession().createQuery("select count(*) from UserGroupEntity").uniqueResult()).intValue();
-		return count;
 	}
 }

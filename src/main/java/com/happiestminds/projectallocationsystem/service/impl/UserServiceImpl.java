@@ -2,10 +2,11 @@ package com.happiestminds.projectallocationsystem.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
+import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,18 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
-import com.happiestminds.projectallocationsystem.Dto.StatusDto;
-import com.happiestminds.projectallocationsystem.Dto.UserDto;
-import com.happiestminds.projectallocationsystem.Dto.UserGroupDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserGroupListDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserListDto;
 import com.happiestminds.projectallocationsystem.dao.GroupRightsDAO;
 import com.happiestminds.projectallocationsystem.dao.UserDAO;
-import com.happiestminds.projectallocationsystem.dao.UserGroupDAO;
 import com.happiestminds.projectallocationsystem.entity.UserEntity;
 import com.happiestminds.projectallocationsystem.entity.UserGroupEntity;
-import com.happiestminds.projectallocationsystem.enumerator.StatusCodeEnum;
-import com.happiestminds.projectallocationsystem.enumerator.UserStatus;
 import com.happiestminds.projectallocationsystem.service.UserService;
 
 /**
@@ -37,14 +30,13 @@ import com.happiestminds.projectallocationsystem.service.UserService;
 @Service("userDetailsService")
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+	private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class.getSimpleName());
+
 	@Autowired
 	private UserDAO userDao;
 
 	@Autowired
 	private GroupRightsDAO groupRightsDAO;
-
-	@Autowired
-	private UserGroupDAO userGroupDAO;
 
 	/**
 	 * 
@@ -60,76 +52,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	 * (com.happiestminds.projectallocationsystem.entity.UserEntity)
 	 */
 	@Override
-	public UserDto addUser(UserDto user) {
-		UserDto userResponse = new UserDto();
-		StatusDto statusDto = new StatusDto();
-		UserEntity userEntity = new UserEntity();
-		String userName = user.getUserName();
-		userEntity.setUserName(userName);
-		if (userName.indexOf('@') != -1) {
-			if (!userName.substring(userName.indexOf('@')).equalsIgnoreCase("@happiestminds.com")) {
-				userName = userName + "@happiestminds.com";
+	public boolean addUser(UserEntity user) {
+		boolean isUserAdded = false;
+		try {
+			UserEntity userEntity = userDao.findById(user.getUserId());
+			if (userEntity == null) {
+				user.setUserId(user.getUserId().toUpperCase());
+				user.setEmailId(user.getEmailId().toLowerCase());
+				UserGroupEntity userGroup = new UserGroupEntity();
+				userGroup.setGroupId("UID");
+				user.setUserGroup(userGroup);
+				String password = user.getPassword();
+				user.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
+				userDao.save(user);
+				isUserAdded = true;
 			}
-		} else {
-			userName = userName + "@happiestminds.com";
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE ADDING USER IN ENTITY", hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED WHILE ADDING USER IN ENTITY", ex);
 		}
-		user.setEmailId(userName.toLowerCase());
-		userEntity.setEmailId(userName);
-		userEntity.setUserId(user.getUserId());
-		String password = user.getPassword();
-		userEntity.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
 
-		userEntity.setAccountStatus(UserStatus.value(Integer.valueOf(user.getAccountStatus())));
+		return isUserAdded;
 
-		UserGroupEntity userGroupEntity = new UserGroupEntity();
-		userGroupEntity.setGroupId("UID");
-		userEntity.setUserGroup(userGroupEntity);
-
-		userDao.save(userEntity);
-
-		BeanUtils.copyProperties(user, userResponse);
-		statusDto.setStatusCode(StatusCodeEnum.SUCCESS);
-		statusDto.setStatusMessage("Hi " + user.getUserName() + " You are Successfully Registered");
-
-		userResponse.setStatusDto(statusDto);
-		return userResponse;
-	}
-
-	@Deprecated
-	public UserDto addUser1(UserDto user) {
-		UserDto userResponse = new UserDto();
-		StatusDto statusDto = new StatusDto();
-		List<UserEntity> userList = userDao.findByUserNameOREmail(user);
-		if (userList == null) {
-			UserEntity userEntity = new UserEntity();
-			userEntity.setUserName(user.getUserName());
-			userEntity.setEmailId(user.getEmailId().toLowerCase());
-			String password = user.getPassword();
-			userEntity.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
-
-			UserGroupEntity userGroupEntity = new UserGroupEntity();
-			userGroupEntity.setGroupId("UID");
-			userEntity.setUserGroup(userGroupEntity);
-
-			userDao.save(userEntity);
-
-			BeanUtils.copyProperties(user, userResponse);
-			statusDto.setStatusCode(StatusCodeEnum.SUCCESS);
-			statusDto.setStatusMessage("Hi " + user.getUserName() + "You are Successfully Registered");
-		} else {
-			for (Iterator<UserEntity> iterator = userList.iterator(); iterator.hasNext();) {
-				UserEntity userEntity = (UserEntity) iterator.next();
-				if (userEntity.getUserName().equals(user.getUserName())) {
-					statusDto.setStatusCode(StatusCodeEnum.CREATEACCOUNTFAILUREMESSAGEUSER);
-					break;
-				} else if (userEntity.getEmailId().equals(user.getEmailId())) {
-					statusDto.setStatusCode(StatusCodeEnum.CREATEACCOUNTFAILUREMESSAGEEMAIL);
-					break;
-				}
-			}
-		}
-		userResponse.setStatusDto(statusDto);
-		return userResponse;
 	}
 
 	/*
@@ -140,24 +85,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	 * (com.happiestminds.projectallocationsystem.entity.UserEntity)
 	 */
 	@Override
-	public void updateUser(UserDto user) {
-		int noOfEntiesUpdated = 0;
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		Integer accountStatus = user.getAccountStatus();
-		UserEntity userEntity = userDao.findByUserName(user.getUserName());
-		// If user doen't have permission to update account status
-		if (accountStatus == null) {
-			accountStatus = userEntity.getAccountStatus().getValue();
-			user.setAccountStatus(accountStatus);
+	public void updateUser(UserEntity user, String groupId) {
+		try {
+			user.setEmailId(user.getEmailId().toLowerCase());
+			userDao.updateUserbyId(user, groupId);
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE UPDATING USER IN ENTITY", hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED WHILE UPDATIN USER IN ENTITY", ex);
 		}
-		user.setEmailId(userEntity.getEmailId());
-		noOfEntiesUpdated = userDao.updateUserbyName(user);
-		statusDto.setStatusCode(StatusCodeEnum.OK);
-		if (noOfEntiesUpdated > 0) {
-			statusDto.setStatusMessage("Successfully updated user");
-		}
-		user.setStatusDto(statusDto);
-
 	}
 
 	/*
@@ -168,56 +104,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	 * (com.happiestminds.projectallocationsystem.entity.UserEntity)
 	 */
 	@Override
-	public void deleteUser(UserDto user, String userId) {
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		if (user.getUserName() != userId) {
-			int noOfEntiesDeleted = userDao.deleteUserByName(user.getUserName());
-			UserDto userTemp = new UserDto();
-			BeanUtils.copyProperties(userTemp, user);
-			if (noOfEntiesDeleted > 0) {
-				statusDto.setStatusCode(StatusCodeEnum.OK);
-				statusDto.setStatusMessage("Successfully Deleted user");
-			}
-		} else {
-			statusDto.setStatusMessage("You can not delete yourself");
-		}
-		user.setStatusDto(statusDto);
-	}
+	public void deleteUser(UserEntity user) {
 
-	public UserListDto getAllUsersWithGroups1(UserGroupListDto groups, int startIndex, int pageSize, String sortVar) {
-		UserListDto users = new UserListDto();
-		StatusDto statusDto = new StatusDto();
-		List<UserGroupEntity> usersWithGroups = userGroupDAO.fetchAllUsersWithGroups(startIndex, pageSize, sortVar);
-		for (UserGroupEntity userWithGroup : usersWithGroups) {
-			for (UserEntity userEntity : userWithGroup.getUsers()) {
-				UserDto user = new UserDto();
-				BeanUtils.copyProperties(userEntity, user);
-				user.setUserGroupId(userEntity.getUserGroup().getGroupId());
-				users.getUsers().add(user);
-			}
-			UserGroupDto userGroupDto = new UserGroupDto();
-			BeanUtils.copyProperties(userWithGroup, userGroupDto);
-			groups.getUserGroups().add(userGroupDto);
+		try {
+			userDao.deleteById("UserEntity", user.getUserId());
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE DELETE USER IN ENTITY", hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED WHILE DELETE USER IN ENTITY", ex);
 		}
-		statusDto.setStatusCode(StatusCodeEnum.OK);
-		users.setStatusDto(statusDto);
-		return users;
 	}
 
 	@Override
-	public UserListDto getAllUsersWithGroups(UserGroupListDto groups, int startIndex, int pageSize, String sortVar) {
-		UserListDto users = new UserListDto();
-		StatusDto statusDto = new StatusDto();
-		List<UserEntity> allUsers = userDao.getAllUsers(startIndex, pageSize, sortVar);
-		for (UserEntity userEntity : allUsers) {
-			UserDto user = new UserDto();
-			BeanUtils.copyProperties(userEntity, user);
-			user.setUserGroupId(userEntity.getUserGroup().getGroupId());
-			user.setAccountStatus(userEntity.getAccountStatus().getValue());
-			users.getUsers().add(user);
+	public List<UserEntity> getAllUsersWithGroups() {
+		List<UserEntity> users = null;
+		try {
+			users = (List<UserEntity>) userDao.getAllUsers();
+		} catch (HibernateException hex) {
+			logger.error("HIBERNATE EXCEPTION OCCURED WHILE FETCHING USERENTITY", hex);
+		} catch (Exception ex) {
+			logger.error("EXCEPTION OCCURED WHILE FETCHING USERENTITY", ex);
 		}
-		statusDto.setStatusCode(StatusCodeEnum.OK);
-		users.setStatusDto(statusDto);
 		return users;
 	}
 
@@ -230,18 +137,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		if (username.indexOf('@') != -1) {
-			username = username.substring(0, username.indexOf('@'));
-		}
-		UserEntity user = userDao.findByUserName(username.toLowerCase());
+
+		UserEntity user = userDao.findByUserName(username);
 		if (user != null) {
 			String userId = user.getUserId();
 			String password = user.getPassword();
 			// additional information on the security object
-			boolean enabled = user.getAccountStatus().getValue() == 1 ? true : false;
-			boolean accountNonExpired = user.getAccountStatus().getValue() == 1 ? true : false;
-			boolean credentialsNonExpired = user.getAccountStatus().getValue() == 1 ? true : false;
-			boolean accountNonLocked = user.getAccountStatus().getValue() == 1 ? true : false;
+			boolean enabled = user.getAccountStatus() == 1 ? true : false;
+			boolean accountNonExpired = user.getAccountStatus() == 1 ? true : false;
+			boolean credentialsNonExpired = user.getAccountStatus() == 1 ? true : false;
+			boolean accountNonLocked = user.getAccountStatus() == 1 ? true : false;
 
 			// Let's populate user operations/featues
 			Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -259,32 +164,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			throw new UsernameNotFoundException("User Not Found!!!");
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.happiestminds.projectallocationsystem.service.UserService#getUser
-	 * (java.lang.String)
-	 */
-	@Override
-	public UserDto getUser(String userName) {
-		UserDto user = new UserDto();
-		StatusDto statusDto = new StatusDto(StatusCodeEnum.ERROR);
-		UserEntity userEntity = userDao.findByUserName(userName);
-		if (userEntity != null) {
-			user.setUserId(userEntity.getUserId());
-			user.setUserName(userEntity.getUserName());
-			statusDto.setStatusCode(StatusCodeEnum.SUCCESS);
-			statusDto.setStatusMessage("Someone already has that username. Try another?");
-			user.setStatusDto(statusDto);
-		}
-		return user;
-	}
-
-	@Override
-	public int getAllUserCount() {
-		return userDao.getAllUsersCount();
-	}
-
 }

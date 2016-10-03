@@ -17,10 +17,6 @@ public interface UserGroupDAO extends AbstractDAO<UserGroupEntity, String> {
 
 	List<GroupRightsEntity> fetchGroupRightsByGroup(String groupId) throws HibernateException;
 
-	List<UserGroupEntity> fetchAllUsersWithGroups(int startIndex, int pageSize, String sortVar) throws HibernateException;
-
-	int getCountAllUserGroups() throws HibernateException;
-
-	List<UserGroupEntity> fetchAllUsersGroups(int startIndex, int pageSize, String sortVar) throws HibernateException;
+	List<UserGroupEntity> fetchAllUsersWithGroups() throws HibernateException;
 
 }

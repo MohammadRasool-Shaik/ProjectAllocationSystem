@@ -12,8 +12,4 @@ import com.happiestminds.projectallocationsystem.entity.CustomerEntity;
  */
 public interface CustomerDAO extends AbstractDAO<CustomerEntity, String> {
 	List<String> fetchAllCustomerIds()throws HibernateException;
-
-	List<CustomerEntity> fetchAllCustomers(int startIndex, int pageSize, String sortVar) throws HibernateException;
-
-	int getCountAllCustomers();
 }

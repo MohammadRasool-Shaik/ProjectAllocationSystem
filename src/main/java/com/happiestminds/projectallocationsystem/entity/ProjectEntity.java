@@ -1,6 +1,6 @@
 package com.happiestminds.projectallocationsystem.entity;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @author rasool.shaik
  * 
@@ -31,11 +30,9 @@ public class ProjectEntity {
 	@Column(length = 100)
 	private String techSPOC;
 
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-	private Calendar startDate;
+	private Date startDate;
 
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-	private Calendar expectedEndDate;
+	private Date expectedEndDate;
 
 	@ManyToOne(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "customerId", nullable = false)
@@ -119,6 +116,21 @@ public class ProjectEntity {
 	}
 
 	/**
+	 * @return the startDate
+	 */
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	/**
+	 * @param startDate
+	 *            the startDate to set
+	 */
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	/**
 	 * @return the customer
 	 */
 	public CustomerEntity getCustomer() {
@@ -134,32 +146,18 @@ public class ProjectEntity {
 	}
 
 	/**
-	 * @return the startDate
-	 */
-	public Calendar getStartDate() {
-		return startDate;
-	}
-
-	/**
-	 * @param startDate the startDate to set
-	 */
-	public void setStartDate(Calendar startDate) {
-		this.startDate = startDate;
-	}
-
-	/**
 	 * @return the expectedEndDate
 	 */
-	public Calendar getExpectedEndDate() {
+	public Date getExpectedEndDate() {
 		return expectedEndDate;
 	}
 
 	/**
-	 * @param expectedEndDate the expectedEndDate to set
+	 * @param expectedEndDate
+	 *            the expectedEndDate to set
 	 */
-	public void setExpectedEndDate(Calendar expectedEndDate) {
+	public void setExpectedEndDate(Date expectedEndDate) {
 		this.expectedEndDate = expectedEndDate;
 	}
-
 
 }

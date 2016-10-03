@@ -8,11 +8,10 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.happiestminds.projectallocationsystem.Dto.ModuleDto;
-import com.happiestminds.projectallocationsystem.Dto.OperationDto;
-import com.happiestminds.projectallocationsystem.Dto.UserGroupDto;
-import com.happiestminds.projectallocationsystem.Dto.batch.UserGroupListDto;
-import com.happiestminds.projectallocationsystem.response.UserGroupOptionsResponse;
+import com.happiestminds.projectallocationsystem.entity.ModuleEntity;
+import com.happiestminds.projectallocationsystem.entity.OperationEntity;
+import com.happiestminds.projectallocationsystem.entity.UserEntity;
+import com.happiestminds.projectallocationsystem.entity.UserGroupEntity;
 
 /**
  * @author rasool.shaik
@@ -22,30 +21,30 @@ import com.happiestminds.projectallocationsystem.response.UserGroupOptionsRespon
 public interface UserGroupService {
 
 	@Transactional
-	void addUserGroup(UserGroupDto userGroup);
+	boolean addUserGroup(UserGroupEntity userGroup);
 
 	@Transactional
-	void updateUserGroup(UserGroupDto userGroup);
+	void updateUserGroup(UserGroupEntity userGroup);
 
 	@Transactional
-	void deleteUserGroup(UserGroupDto userGroup);
-
-	@Transactional(readOnly = true)
-	UserGroupListDto getAllUserGroups(int startIndex, int pageSize, String sorting);
-
-	@Transactional(readOnly = true)
-	Map<String, List<OperationDto>> fetchOperationsByGroup(String groupId);
+	void deleteUserGroup(UserGroupEntity userGroup);
 
 	@Transactional
-	boolean applyRightsToGroup(String groupId, List<String> operations);
+	List<UserGroupEntity> getAllUserGroups();
 
-	@Transactional(readOnly = true)
-	public Set<ModuleDto> fetchModulesByRights(Collection<GrantedAuthority> authorities);
+	@Transactional
+	Map<String, List<OperationEntity>> fetchOperationsByGroup(String groupId);
 
-	@Transactional(readOnly = true)
-	UserGroupOptionsResponse getAllUserGroupsOptions();
+	@Transactional
+	boolean applyRightsToGroup(String groupId, String operations);
 
-	@Transactional(readOnly = true)
-	int getCountAllUserGroups();
+	@Transactional
+	boolean revokeGroupRightsFromGroup(String groupId, String operations);
+
+	@Transactional
+	Set<ModuleEntity> fetchModulesByRights(Collection<GrantedAuthority> authorities);
+
+	@Transactional
+	List<UserEntity> fetchAllUsersWithGroups(Set<String> groupIds);
 
 }

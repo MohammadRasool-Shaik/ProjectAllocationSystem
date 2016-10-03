@@ -20,14 +20,13 @@ public class AllocationHistoryEntity implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	@Id
+	@Column(length = 10)
+	private String employeeID;
 
 	@Id
 	@Column(length = 10)
 	private String requestID;
-	
-	@Column(length = 10)
-	private String employeeID;
 
 	@Column(length = 10)
 	private String requestor;
@@ -40,7 +39,7 @@ public class AllocationHistoryEntity implements Serializable {
 	private Date handledDate;
 
 	@Column(length = 1)
-	private Character requestType;
+	private String requestType;
 
 	@Column(length = 10)
 	private String projectId;
@@ -51,7 +50,6 @@ public class AllocationHistoryEntity implements Serializable {
 
 	@Column(length = 1)
 	private String status;
-	//(allocated and de-allocated)
 
 	/**
 	 * 
@@ -152,7 +150,7 @@ public class AllocationHistoryEntity implements Serializable {
 	/**
 	 * @return the requestType
 	 */
-	public Character getRequestType() {
+	public String getRequestType() {
 		return requestType;
 	}
 
@@ -160,7 +158,7 @@ public class AllocationHistoryEntity implements Serializable {
 	 * @param requestType
 	 *            the requestType to set
 	 */
-	public void setRequestType(Character requestType) {
+	public void setRequestType(String requestType) {
 		this.requestType = requestType;
 	}
 
