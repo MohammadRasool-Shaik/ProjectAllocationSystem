@@ -1,26 +1,56 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	http://www.springframework.org/schema/security
 	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
-	
-	<!-- Excluding security for login page  -->
-	<http pattern="/login" security="none"/>
-	
+
+	<!-- Excluding security for login page -->
+	<!-- <http pattern="/login" security="none" /> <http pattern="/register" 
+		security="none" /> <http pattern="/getRegister" security="none" /> <http 
+		pattern="/forgotPassword" security="none" /> -->
+
+
 	<http use-expressions="true">
-		<intercept-url pattern="/**" access="isAuthenticated()"/>
-		<form-login login-page="/login" default-target-url="/home.jsp" authentication-failure-url="/login" />
+		<intercept-url pattern="/styles/*" access="permitAll" />
+		<intercept-url pattern="/styles/images/*" access="permitAll" />
+		<intercept-url pattern="/styles/metro/*" access="permitAll" />
+		<intercept-url pattern="/styles/metro/crimson/*" access="permitAll" />
+		
+		<intercept-url pattern="/scripts/*" access="permitAll" />
+		
+		<intercept-url pattern="/login" access="permitAll" />
+		<intercept-url pattern="/register" access="permitAll" />
+		<intercept-url pattern="/getRegister" access="permitAll" />
+		<intercept-url pattern="/forgotPassword" access="permitAll" />
+		<intercept-url pattern="/findUser" access="permitAll" />
+		
+
+
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		<form-login login-page="/login" default-target-url="/"
+			authentication-failure-url="/login" />
 		<logout logout-url="/logout" />
 	</http>
-	
+
+	<beans:bean id="daoAuthenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailsService"></beans:property>
+
+	</beans:bean>
+
+	<beans:bean id="authenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
+		<beans:property name="providers">
+			<beans:list>
+				<beans:ref local="daoAuthenticationProvider" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
 	<authentication-manager>
-		<authentication-provider>
-			<user-service>
-				<user name="Rasool" password="Ammu" authorities="admin"/>
-				<user name="Shannu" password="Ammu" authorities="user"/>
-			</user-service>
+		<authentication-provider user-service-ref="userDetailsService">
+			<password-encoder hash="md5"></password-encoder>
 		</authentication-provider>
 	</authentication-manager>
 </beans:beans>

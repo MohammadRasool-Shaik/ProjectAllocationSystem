@@ -5,38 +5,54 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Register User</title>
+	<link rel="stylesheet" type="text/css" href="<c:url value="/styles/projectAllocation.css"/>"/>
 </head>
 <body>
 	<a href="home">Home </a>
-	<h2>Register Here</h2>
-	<c:if test="${not empty user}"><div><font color="Red"> <span>${user.userId}with user Id, User already exist</span></font></div></c:if>
-	<table border=1>
-		<form:form action="register" method="POST" commandName="register">
-			<tr>
-				<td>User Id</td>
-				<td><input type="text" name="userId" /></td>
-			</tr>
-			<tr>
-				<td>User Name</td>
-				<td><input type="text" name="userName" /></td>
-			</tr>
-			<tr>
-				<td>Email</td>
-				<td><input type="email" name="emailId" /></td>
-			</tr>
-			<tr>
-				<td>Password</td>
-				<td><input type="password" name="password" /></td>
-			</tr>
-			<tr>
-				<td>Confirm Password</td>
-				<td><input type="password" name="cpassword" /></td>
-			</tr>
-			<td colspan="2" align="center"><input type="submit"
-				name="action" value="Register" /></td>
+	<h2 align="center">Register Here</h2>
+	<c:if test="${not empty user}">
+		<div class="">
+			<font color="Red"> <span>${user.statusDto.statusMessage}</span></font>
+		</div>
+	</c:if>
+	<div style="margin:auto;">
+		<form:form id="registertrationForm" action="register" method="POST" commandName="user">
+			<form:errors path="*" cssClass="errorblock" element="div" />
+			<div class="displayTable">
+				<div class="displayRow">
+					
+					<div class="displayCell">Enter User Name</div>
+					<div class="displayCell">
+						<form:input type="text" id="userName" placeholder="Ex: rasool.shaik" valid="" path="userName" autocomplete="off"/>
+						<span style=" color: grey; ">@gmail.com</span>
+						<div class="false" id="validUser" style="display:none;"></div>
+					</div>
+				</div>
+				<div class="displayRow">
+					<div class="displayCell">User Id</div>
+					<div class="displayCell">
+						<input type="text" id="userId" placeholder="Enter Your EmployeeId" name="userId" autocomplete="off"/>
+					</div>
+				</div>
+				<%-- <div class="displayRow">
+					<div class="displayCell">Email Id</div>
+					<div class="displayCell"><form:input type="text" path="emailId" placeholder="Ex: rasool1988@gmail.com" /></div>
+				</div> --%>
+				<div class="displayRow">
+					<div class="displayCell">Password</div>
+					<div class="displayCell"><form:input type="password" path="password" id="password" placeholder="Password" autocomplete="off" /></div>
+				</div>
+				<div class="displayRow">
+					<div class="displayCell">Confirm Password</div>
+					<div class="displayCell"><form:input type="password" path="cpassword"  placeholder="Re-type Password" autocomplete="off"/></div>
+				</div>
+				<div class="displayRow">
+					<div class="displayCell"><input type="submit" name="action" value="Register" />
+					</div>
+				</div>
+			</div>
 		</form:form>
-	</table>
+	</div> 
+	<%@ include file="/WEB-INF/view/jsincludes.jsp"%>
 </body>
 </html>

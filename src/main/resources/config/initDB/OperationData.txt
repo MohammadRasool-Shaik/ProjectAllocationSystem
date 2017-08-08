@@ -3,18 +3,29 @@ POOLLST,List of employees in pool with aging information,REPORTS,4
 EXPAUDT,Report – Export audit trail information – filtered or all,AUDIT,1
 NEWUG,Create new user group,USRGRPM,1
 EDITUG,Edit/Amend user group,USRGRPM,2
+DELUG,Delete user group,USRGRPM,3
 NEWUSER,Create new user account,USRACCM,1
 EDITUSER,Edit/Amend user account,USRACCM,2
 CHGPASS,Change my password,USRACCM,3
 RSTPASS,Reset password,USRACCM,4
+DELUSER,Delete user account,USRACCM,6
 UNLOCK,Unlock user account,USRACCM,5
 NEWSKL,Add new skill,SKILLM,1
+EDITSKL,Edit skill,SKILLM,2
+DELSKL,Delete skill,SKILLM,3
 NEWCUST,Add new customer,CUSTM,1
+EDITCUST,Edit customer,CUSTM,2
+DELCUST,Delete customer,CUSTM,3
 NEWPROJ,Add new project,PRJCTM,1
+EDITPROJ,Edit Project,PRJCTM,2
+DELPROJ,Delete Project,PRJCTM,2
 GENCONF,Manage application configuration,APPCONF,1
 NEWALL,Raise Allocation Request,ALLOCAM,1
-SRCHALL,Search and allocate,ALLOCM,2
-RELREQU,Raise release request,ALLOCM,3
-SRCHREL,Search and release,ALLOCM,4
+SRCHALL,Search and allocate,ALLOCAM,2
+RELREQU,Raise release request,ALLOCAM,3
+SRCHREL,Search and release,ALLOCAM,4
 NOTREL,Report – List of employees pending release,REPORTS,1
 PRJALL,Report – List of employees allocation to a specific project,REPORTS,2
+NEWEMP,Add new Employee,EMPM,1
+EDITEMP,Edit Employee,EMPM,2
+DELEMP,Delete Employee,EMPM,3

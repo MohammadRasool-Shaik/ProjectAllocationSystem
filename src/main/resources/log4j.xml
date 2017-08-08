@@ -12,7 +12,8 @@
 
 	<!-- APPENDER: dailyRollingFile -->
 	<appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="classpath:projectAllocation.log" />
+		<!-- <param name="File" value="classpath:projectAllocation.log" /> -->
+		<param name="File" value="D:\\Workspace\\projectAllocation.log" />
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
